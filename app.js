@@ -1,9 +1,6 @@
 /*TODO:
 PUBLISH TO GITHUB
-add more commands, change cmd char:
-    change !command to help, 
-    clear-clear chat window, 
-    change username, 
+add more commands:
     get weather, 
     get rand quote, 
     ignore messages from specific user
@@ -85,6 +82,17 @@ io.on("connection", (socket) => {
             socket.emit("user_list_initial", [...connectedClients.keys()])
         }
         // NOTE: add .filter((item) => {item !== null}) after the returned array if a null shows up in the client list
+    })
+
+    // craete event for when someone wants to change their username they request here
+    socket.on('change_username_req', (data) => { // data has old and new username
+        if(connectedClients.has(data.new)){ // if username is in the client list
+            socket.emit('change_username_fail', [...connectedClients.keys()]) // send back failed along with current user list
+        } else {
+            connectedClients.delete(data.old) // delete old username
+            connectedClients.set(data.new, socket) // add new username
+            io.emit('change_username_pass', data.new) // send back pass with new username
+        }
     })
 });
 
