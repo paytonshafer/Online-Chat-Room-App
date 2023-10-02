@@ -1,11 +1,13 @@
 /*TODO:
 PUBLISH TO GITHUB
 add more commands:
+    /me - allow users to set a description, allow others to get description
+    /desc - get aboce descriptions ex. /desc username
+    chat with ai, ex /ai tell me about egyot -> pull prompt and send to gpt with ai
     get weather, 
     get rand quote, 
     ignore messages from specific user
     send message to a single user
-    /me - allow users to set a description, allow others to get description
     game/riddle - launch text game in room
     /define - define a word when asked
 Upgrade UI (maybe make react)
