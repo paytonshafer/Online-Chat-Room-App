@@ -74,6 +74,7 @@ const handleCommands = (cmd) => {
             break
         case "clear":
             messages.innerHTML = "";
+            addMessage("You have joined the chat as '" + username  + "'. Use /help for help and a list of commands."); 
             break
         default:
             // only gets here if they tried to use a command that we don't have
@@ -142,6 +143,6 @@ socket.on("user_list_cmd", (data) => {
 // run function to get user list then create unique username for user
 fetchUserList().then((user_list_on_connect) => {
     username = promptForUniqueUsername(user_list_on_connect); // get a unique username
-    addMessage("You have joined the chat as '" + username  + "'. Send !help for a list of commands."); // add message when you join
+    addMessage("You have joined the chat as '" + username  + "'. Send /help for a list of commands."); // add message when you join
     socket.emit("user_join", username); // send to server to broadcast that new user joined
 });
