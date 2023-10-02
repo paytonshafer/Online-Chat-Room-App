@@ -4,12 +4,22 @@ const messages = document.querySelector(".messages"); //get message buffer by cl
 const socket = io(); // connect to the socket.io instance on the server (connection event on server side)
 let username; // initalize username
 let isInitialUserListRequested = false; // add a flag to track the inital userlist request
+const helpMessage = `**Chat Room Help**
+
+Welcome to the chat room! Here are some available commands to enhance your chat experience:
+
+/help: Display this help message, listing available commands.
+/users: List all connected users in the chat room.
+/clear: Clear all messages on your screen
+
+Feel free to use these commands to explore and interact with the chat room. If you have any questions or need assistance, don't hesitate to ask!
+Happy chatting! 🚀`; // help message to be displayed to user
 
 // HELPER FUNCTIONS
 // function to add a message to the message buffer
 const addMessage = (message) => {
     const li = document.createElement("li"); //create new li elem
-    li.innerHTML = message; // add message to be text in li
+    li.innerText = message; // add message to be text in li
     messages.appendChild(li); // add message to the ul (message buffer)
     window.scrollTo(0, document.body.scrollHeight); // scroll to bottom of page so you can see all messages
 }
@@ -56,11 +66,14 @@ const handleCommands = (cmd) => {
     switch (cmd) {
         case "help":
             // add below message to let the user know their command options
-            addMessage('Every command must start with the "!". The current command list: help, users')
+            addMessage(helpMessage)
             break
         case "users":
             // get user list and set reason to be for it to print out
             socket.emit("request_users", {reason: 0})
+            break
+        case "clear":
+            messages.innerHTML = "";
             break
         default:
             // only gets here if they tried to use a command that we don't have
@@ -80,7 +93,7 @@ form.addEventListener("submit", (event) => {
     }
     
     // check for commands and an empty prompt
-    if(input.value[0] == "!"){
+    if(input.value[0] == "/"){
         // call function to handle the command and send the command called to the function
         handleCommands(input.value.slice(1))
     } else if(input.value.trim() !== "") { // this if prevents blank data sent to others
