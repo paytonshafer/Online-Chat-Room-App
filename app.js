@@ -12,6 +12,7 @@ add more commands:
     game/riddle - launch text game in room
     /define - define a word when asked
 login systen
+profile icon
 friend list
 user status (online or offline)
 select what "room" to join or dm someone
