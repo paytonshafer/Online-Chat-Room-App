@@ -1,6 +1,7 @@
 /*TODO:
-PUBLISH TO GITHUB
-add more commands:s
+Upgrade UI -> create react app
+Integrate database to backend
+add more commands:
     /me - allow users to set a description, allow others to get description
     /desc - get aboce descriptions ex. /desc username
     chat with ai, ex /ai tell me about egyot -> pull prompt and send to gpt with ai
@@ -10,7 +11,6 @@ add more commands:s
     send message to a single user
     game/riddle - launch text game in room
     /define - define a word when asked
-Upgrade UI (maybe make react)
 login systen
 friend list
 user status (online or offline)
