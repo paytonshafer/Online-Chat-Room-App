@@ -25,13 +25,21 @@ const express = require("express");
 const { createServer } = require('http');
 // import server.io module that makes working with web sockets super easy
 const { Server } = require("socket.io")
+// import cors to ensure data can be sent between server and sockets
+const cors = require('cors');
 
 // 'constructor' of express module, we use app for everything now
 const app = express();
 // create http server using the express app
 const server = createServer(app);
-// create io instance of socket.io server
-const io = new Server(server)
+// set up cors for app
+app.use(cors());
+// create io instance of socket.io server and add cors route
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:3000"
+    }
+})
 
 // set port, check for env file with specified port, if not there use 3000
 const port = process.env.PORT || 8000;
