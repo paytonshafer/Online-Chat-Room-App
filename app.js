@@ -34,17 +34,19 @@ const server = createServer(app);
 const io = new Server(server)
 
 // set port, check for env file with specified port, if not there use 3000
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8000;
 // create a map to store the usernames and their respective socket
 const connectedClients = new Map()
 
 // serve static files from the public directory
 app.use(express.static(__dirname + "/public"));
 
+/* migrated to react app so no longer need to server the html file here
 // on the request to the url / return the index.html file as the page
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/index.html"); //send the html file
 });
+*/
 
 // on connection event create these event listeners on the new socket
 io.on("connection", (socket) => {
