@@ -38,10 +38,10 @@ const port = process.env.PORT || 8000;
 // create a map to store the usernames and their respective socket
 const connectedClients = new Map()
 
+/* migrated to react app so no longer need to server the html file here
 // serve static files from the public directory
 app.use(express.static(__dirname + "/public"));
 
-/* migrated to react app so no longer need to server the html file here
 // on the request to the url / return the index.html file as the page
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/index.html"); //send the html file
