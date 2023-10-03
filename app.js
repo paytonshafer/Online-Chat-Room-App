@@ -1,6 +1,7 @@
 /*TODO:
 PUBLISH TO GITHUB
 add more commands:
+    broadcast that the user changed username to clients
     /me - allow users to set a description, allow others to get description
     /desc - get aboce descriptions ex. /desc username
     chat with ai, ex /ai tell me about egyot -> pull prompt and send to gpt with ai
@@ -15,7 +16,7 @@ login systen
 friend list
 user status (online or offline)
 select what "room" to join or dm someone
-integrate database to save previous messages in a room
+integrate database to save previous messages in a room -> /history command to get history back
 moderation tools:mute user, delete messages
 
 Features:
@@ -93,7 +94,8 @@ io.on("connection", (socket) => {
         } else {
             connectedClients.delete(data.old) // delete old username
             connectedClients.set(data.new, socket) // add new username
-            io.emit('change_username_pass', data.new) // send back pass with new username
+            socket.emit('change_username_pass', data.new) // send back pass with new username
+            socket.broadcast.emit('other_name_change', data) // broadcast to all other users
         }
     })
 });

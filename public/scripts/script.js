@@ -7,11 +7,13 @@ let isInitialUserListRequested = false; // add a flag to track the inital userli
 const helpMessage = `**Chat Room Help**
 
 Welcome to the chat room! Here are some available commands to enhance your chat experience:
+Note: some commands have parameters that are like this, <param>, below. Just write the command and the parameters with spaces between them.
 
 /help: Display this help message, listing available commands.
 /users: List all connected users in the chat room.
 /clear: Clear all messages on your screen.
 /username: Change your username, you still must have a unique name.
+/ai <message>: Send a message to the ai chat bot.
 
 Feel free to use these commands to explore and interact with the chat room. If you have any questions or need assistance, don't hesitate to ask!
 Happy chatting! 🚀`; // help message to be displayed to user
@@ -165,6 +167,11 @@ socket.on('change_username_fail', (data) => {
 socket.on('change_username_pass', (data) => {
     username = data // change username
     addMessage("System: You are now in the chat as '" + username  + "'."); // let them know it passed and they have new username
+})
+
+// annouce that another user changed their username
+socket.on('other_name_change', (data) => {
+    addMessage("System: The user '" + data.old + "' changed their username to '" + data.new + "'.")
 })
 
 // RUN ON INITIAL LOAD
