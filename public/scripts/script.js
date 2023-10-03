@@ -7,13 +7,13 @@ let isInitialUserListRequested = false; // add a flag to track the inital userli
 const helpMessage = `**Chat Room Help**
 
 Welcome to the chat room! Here are some available commands to enhance your chat experience:
-Note: some commands have parameters that are like this, <param>, below. Just write the command and the parameters with spaces between them.
+Note: Some commands have parametes, just type the command and the parameters seperated by spaces.
 
 /help: Display this help message, listing available commands.
 /users: List all connected users in the chat room.
 /clear: Clear all messages on your screen.
 /username: Change your username, you still must have a unique name.
-/ai <message>: Send a message to the ai chat bot.
+/ai message: Send a message to the ai chat bot.
 
 Feel free to use these commands to explore and interact with the chat room. If you have any questions or need assistance, don't hesitate to ask!
 Happy chatting! 🚀`; // help message to be displayed to user
