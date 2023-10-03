@@ -13,7 +13,7 @@ Note: Some commands have parametes, just type the command and the parameters sep
 /users: List all connected users in the chat room.
 /clear: Clear all messages on your screen.
 /username: Change your username, you still must have a unique name.
-/ai message: Send a message to the ai chat bot.
+/ai message: Send a message to the ai chat bot. (not complete yet)
 
 Feel free to use these commands to explore and interact with the chat room. If you have any questions or need assistance, don't hesitate to ask!
 Happy chatting! 🚀`; // help message to be displayed to user

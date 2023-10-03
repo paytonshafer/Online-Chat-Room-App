@@ -1,7 +1,6 @@
 /*TODO:
 PUBLISH TO GITHUB
-add more commands:
-    broadcast that the user changed username to clients
+add more commands:s
     /me - allow users to set a description, allow others to get description
     /desc - get aboce descriptions ex. /desc username
     chat with ai, ex /ai tell me about egyot -> pull prompt and send to gpt with ai
@@ -18,11 +17,6 @@ user status (online or offline)
 select what "room" to join or dm someone
 integrate database to save previous messages in a room -> /history command to get history back
 moderation tools:mute user, delete messages
-
-Features:
-No blank messages
-Everyone must have unique username
-Commands: get current users and get list of commands
 */
 // import express which is a helper to ask act as web server
 const express = require("express");
