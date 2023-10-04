@@ -4,6 +4,7 @@ Upgrade UI -> create react app
     ensure distinct usernames
     /username -> change username with fail, pass and when another user does it
     /clear command
+Update readme
 Integrate database to backend
 add more commands:
     /me - allow users to set a description, allow others to get description
