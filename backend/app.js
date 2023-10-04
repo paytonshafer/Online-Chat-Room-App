@@ -30,10 +30,10 @@ const cors = require('cors');
 
 // 'constructor' of express module, we use app for everything now
 const app = express();
-// create http server using the express app
-const server = createServer(app);
 // set up cors for app
 app.use(cors());
+// create http server using the express app
+const server = createServer(app);
 // create io instance of socket.io server and add cors route
 const io = new Server(server, {
     cors: {
