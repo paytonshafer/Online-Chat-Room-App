@@ -62,13 +62,24 @@ app.get("/", (req, res) => {
 });
 */
 
+// Helper Functions
+// function to get the value of a map by the key, returns null if client isnt found
+const getKeyByValue = (map, targetValue) => {
+    for (const [key, value] of map.entries()) {
+      if (value === targetValue) {
+        return key;
+      }
+    }
+    // If the target value is not found, you can return null or handle it as needed.
+    return null;
+  }
+
 // on connection event create these event listeners on the new socket
 io.on("connection", (socket) => {
-    console.log(socket.id + ': user connected')
     // create an event for when user joins and add then to list and let all connected users know
     socket.on("user_join", (data) => { // data is the new username
         if(data){ // unsure data is not null so only real users can be added
-            console.log(data + ' joined')
+            console.log(data + ' joined (socket id: ' + socket.id + ')')
             connectedClients.set(data, socket); // add new user and their socket to client list
             // call user_join event and send the bew users username
             socket.broadcast.emit("user_join", data);
@@ -82,11 +93,18 @@ io.on("connection", (socket) => {
     });
 
     // create an event for the user on disconnect to let all other user know they left
-    socket.on("client_disconnect", (data) => { // data is username of user who left
-        connectedClients.delete(data.username)
-        // call user_leave event and send username of user who left
-        socket.broadcast.emit("user_leave", data.username);
-    });
+    socket.on("disconnect", () => {
+        // get username from socket that left
+        gone_user = getKeyByValue(connectedClients, socket)
+        if(gone_user){
+            // log that the user left
+            console.log(gone_user + ' joined (socket id: ' + socket.id + ')')
+            // remove said user from the map
+            connectedClients.delete(gone_user)
+            // call user_leave event and send username of user who left
+            socket.broadcast.emit("user_leave", gone_user);
+        }
+    })
 
     // create event to request a list of requested users and send back to same user
     socket.on('request_users', (data) => { // data contains the reason for request, 0 is to print user list and 1 is to get on login
