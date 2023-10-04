@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef  } from 'react';
 import { useUserContext } from '../context/UserContext'; // get user info through context
 import './styles/home.css'
 
@@ -19,6 +19,7 @@ const Home = ({ socket }) => {
     const [message, setMessage] = useState('') // message state of current message
     const [messages, setMessages] = useState([]) // message bufer
     const { username } = useUserContext(); // get username from user context
+    const messagesEndRef = useRef(null); // useRef to scroll to bottom of message buffer
 
     useEffect(() => {
         /* REMOVE THIS AND MOVE LOGIC TO LOGIN PAGE
@@ -56,16 +57,39 @@ const Home = ({ socket }) => {
             addMessage("System: " + data + " has left the chat."); // add user left message
         })
 
+        // get the list of users by the user commands
+        socket.on("user_list_cmd", (data) => {
+            let users = "System: The current users connected are: "
+            data.forEach((user) => {
+                users = user === username ? users + username + " (you), " : users + user + ", " // this adds (you) next to user that requested it
+                //users = user == username ? users : users + user + ", " // this line makes it so the user who requested it doesnt show up
+            })
+            addMessage(users.replace(/, $/, ''))
+        })
+
+
         return () => {
             // socket clean up
             socket.disconnect();
         }
     }, [username, socket])
 
+    useEffect(() => {
+        // ... (your existing code)
+    
+        // Function to scroll to the last message
+        const scrollToBottom = () => {
+          messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        };
+    
+        // Call scrollToBottom whenever a new message is added to scroll to the latest message
+        scrollToBottom();
+      }, [messages])
+
     // add message function to add new message to the buffer
     const addMessage = (data) => {
         setMessages((prev) => [...prev, data]) // add message to the end of the message buffer
-        window.scrollTo(0, document.body.scrollHeight); // scroll to bottom of page so you can see all messages
+        //window.scrollTo(0, document.body.scrollHeight); // scroll to bottom of page so you can see all messages
     }
 
     // helper function to handle commands that are passed through
@@ -75,11 +99,11 @@ const Home = ({ socket }) => {
                 // add below message to let the user know their command options
                 addMessage(helpMessage)
                 break
-            /*case "users":
+            case "users":
                 // get user list and set reason to be for it to print out
                 socket.emit("request_users", {reason: 0})
                 break
-            case "clear":
+            /*case "clear":
                 messages.innerHTML = ""; // clear buffer
                 addMessage("System: You are in the chat as '" + username  + "'. Use /help for help and a list of commands."); // add at top so they know how to get help
                 break
@@ -137,6 +161,8 @@ const Home = ({ socket }) => {
                         <div dangerouslySetInnerHTML={{ __html: data }}></div>
                     </li>
                 ))}
+                {/* Use the ref to scroll to the last message */}
+                <div ref={messagesEndRef}></div>
             </ul>
             <form onSubmit={handleSend}>
                 <input 
