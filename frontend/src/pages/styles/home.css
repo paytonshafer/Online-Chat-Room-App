@@ -1,0 +1,69 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
+
+h1 {
+    font-size: 28px;
+    color: #333;
+    text-align: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    margin: 0;
+    border-bottom: 2px solid #333;
+}
+
+/*format the form, fix it to the bottom and make flex box*/
+form {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    box-sizing: border-box;
+    padding: 0.25rem;
+}
+
+/*format the text input box to send messages*/
+form input {
+    border: 0;
+    padding: 0.5rem;
+    width: 100%;
+    outline: 0;
+    margin-right: 0.5rem;
+    border-radius: 0.25rem;
+    background: #ccc;
+}
+
+/*format the send button*/
+form button {
+    width: 6rem;
+    background-color: #1b8c00;
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    text-transform: uppercase;
+}
+
+/*change send button color on hover*/
+form button:hover {
+    background-color: #166d01;
+}
+
+.messages {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 3rem;
+}
+
+/*add some padding around messages*/
+.messages li {
+    padding: 0.5rem;
+}
+
+/*color every other message a slightly different background*/
+.messages li:nth-child(odd) {
+    background: #eee;
+}
