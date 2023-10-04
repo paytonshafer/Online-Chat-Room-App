@@ -1,11 +1,11 @@
 /*TODO:
 Upgrade UI -> create react app
-    when a user leaves, it does not broadcast the disconnect
     /user function -> get list of connected users
     ensure distinct usernames
     /username -> change username with fail, pass and when another user does it
     /clear command
 Update readme
+Upgrade UI to make interface look nice: login page, chat feed, message input, maybe logout screen
 Integrate database to backend
 add more commands:
     /me - allow users to set a description, allow others to get description
@@ -21,7 +21,7 @@ login systen
 profile icon
 friend list 
 user status (online or offline)
-select what "room" to join or dm someone
+select what "room" to join or dm someone -> set a room string and then socket.join(room), io.in(room).emit()
 integrate database to save previous messages in a room -> /history command to get history back
 moderation tools:mute user, delete messages
 */
