@@ -1,5 +1,6 @@
 /*TODO:
 Upgrade UI -> create react app
+    when a user leaves, it does not broadcast the disconnect
     /user function -> get list of connected users
     ensure distinct usernames
     /username -> change username with fail, pass and when another user does it
@@ -15,10 +16,10 @@ add more commands:
     ignore messages from specific user
     send message to a single user
     game/riddle - launch text game in room
-    /define - define a word when asked
+    /define - define a word when 
 login systen
 profile icon
-friend list
+friend list 
 user status (online or offline)
 select what "room" to join or dm someone
 integrate database to save previous messages in a room -> /history command to get history back
