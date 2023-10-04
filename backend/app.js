@@ -58,9 +58,11 @@ app.get("/", (req, res) => {
 
 // on connection event create these event listeners on the new socket
 io.on("connection", (socket) => {
+    console.log(socket.id + ': user connected')
     // create an event for when user joins and add then to list and let all connected users know
     socket.on("user_join", (data) => { // data is the new username
         if(data){ // unsure data is not null so only real users can be added
+            console.log(data + ' joined')
             connectedClients.set(data, socket); // add new user and their socket to client list
             // call user_join event and send the bew users username
             socket.broadcast.emit("user_join", data);
