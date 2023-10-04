@@ -3,7 +3,7 @@ import { useUserContext } from '../context/UserContext'; // get user info throug
 import './styles/home.css'
 
 const Home = ({ socket }) => {
-    const helpMessage = `**Chat Room Help**
+    const helpMessage = `**Chat Room Help**<br /><br />
 
     Welcome to the chat room! Here are some available commands to enhance your chat experience:<br />
     Note: Some commands have parameters; just type the command and the parameters separated by spaces.<br /><br />
@@ -43,23 +43,21 @@ const Home = ({ socket }) => {
         // SOCKET.IO EVENT LISTENERS
         // setting what happens when chat_message is emitted
         socket.on("chat_message", (data) => {
-            addMessage(data.sender + ": " + data.message);
-        });
+            addMessage(data.sender + ": " + data.message); // add new message buffer
+        })
 
         // setting what happens when user_join is emitted
         socket.on("user_join", (data) => {
-            addMessage(data + " just joined the chat!");
-        });
+            addMessage("System: " + data + " just joined the chat!"); // add new user message
+        })
 
         // setting what happens when user_leave is emitted
         socket.on("user_leave", (data) => {
-            addMessage(data + " has left the chat.");
-        });
+            addMessage("System: " + data + " has left the chat."); // add user left message
+        })
 
         return () => {
-            // emit the client disconnect to let the others know what user left the room
-            socket.emit("client_disconnect", {username: username});
-            // disconnect from the server
+            // socket clean up
             socket.disconnect();
         }
     }, [username, socket])
