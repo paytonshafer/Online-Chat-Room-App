@@ -1,5 +1,9 @@
 /*TODO:
 Upgrade UI -> create react app
+    /user function -> get list of connected users
+    ensure distinct usernames
+    /username -> change username with fail, pass and when another user does it
+    /clear command
 Integrate database to backend
 add more commands:
     /me - allow users to set a description, allow others to get description
