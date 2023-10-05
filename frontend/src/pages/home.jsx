@@ -103,11 +103,11 @@ const Home = ({ socket }) => {
                 // get user list and set reason to be for it to print out
                 socket.emit("request_users", {reason: 0})
                 break
-            /*case "clear":
-                messages.innerHTML = ""; // clear buffer
+            case "clear":
+                setMessages([]) // clear buffer
                 addMessage("System: You are in the chat as '" + username  + "'. Use /help for help and a list of commands."); // add at top so they know how to get help
                 break
-            case "username":
+            /*case "username":
                 // get new username
                 let new_username = prompt('Please enter a new username:')
                 if(new_username == username){ // check if username is same as old
