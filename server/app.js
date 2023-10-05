@@ -51,7 +51,7 @@ const port = process.env.PORT || 8000;
 // create a map to store the usernames and their respective socket
 const connectedClients = new Map()
 
-/* migrated to react app so no longer need to server the html file here
+/* migrated to react app so no longer need to serve the html file here
 // serve static files from the public directory
 app.use(express.static(__dirname + "/public"));
 
@@ -105,6 +105,7 @@ io.on("connection", (socket) => {
         }
     })
 
+    /* archive way from before react frontend
     // create event to request a list of requested users and send back to same user
     socket.on('request_users', (data) => { // data contains the reason for request, 0 is to print user list and 1 is to get on login
         if(data.reason == 0){
@@ -115,6 +116,12 @@ io.on("connection", (socket) => {
             socket.emit("user_list_initial", [...connectedClients.keys()])
         }
         // NOTE: add .filter((item) => {item !== null}) after the returned array if a null shows up in the client list
+    })*/
+
+    // event for requesting user list that can be used with a callback function
+    socket.on('request_users', (data, callback) => {
+        // send username list back
+        callback([...connectedClients.keys()])
     })
 
     // craete event for when someone wants to change their username they request here

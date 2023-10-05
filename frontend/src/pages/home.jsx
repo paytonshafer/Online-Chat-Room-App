@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef  } from 'react';
 import { useUserContext } from '../context/UserContext'; // get user info through context
 import './styles/home.css'
 
+// home page, for now this is where the chat is
 const Home = ({ socket }) => {
     const helpMessage = `**Chat Room Help**<br /><br />
 
@@ -21,25 +22,9 @@ const Home = ({ socket }) => {
     const { username } = useUserContext(); // get username from user context
     const messagesEndRef = useRef(null); // useRef to scroll to bottom of message buffer
 
+    // use effect on initial load that sets listeners and adds initial message
     useEffect(() => {
-        /* REMOVE THIS AND MOVE LOGIC TO LOGIN PAGE
-        // function to get a unique username for the user on join when they try to create a username
-        const promptForUniqueUsername = (user_list_on_connect) => {
-            let username = prompt("Please enter a username:"); // set inital username
-            
-            // if the chosen username is already taken
-            if (user_list_on_connect.includes(username)) {
-                alert("That username is already taken. Please choose another one.");
-                return promptForUniqueUsername(user_list_on_connect); // recursivly ask again for a new username
-            } else {
-                return username; // return the unique username
-            }
-        }
-
-        setUsername(promptForUniqueUsername(['payton']))
-        */
         addMessage("System: You have joined the chat as '" + username  + "'. Send /help for a list of commands."); // add message when you join
-        socket.emit("user_join", username); // send to server to broadcast that new user joined
 
         // SOCKET.IO EVENT LISTENERS
         // setting what happens when chat_message is emitted
@@ -57,39 +42,26 @@ const Home = ({ socket }) => {
             addMessage("System: " + data + " has left the chat."); // add user left message
         })
 
-        // get the list of users by the user commands
-        socket.on("user_list_cmd", (data) => {
-            let users = "System: The current users connected are: "
-            data.forEach((user) => {
-                users = user === username ? users + username + " (you), " : users + user + ", " // this adds (you) next to user that requested it
-                //users = user == username ? users : users + user + ", " // this line makes it so the user who requested it doesnt show up
-            })
-            addMessage(users.replace(/, $/, ''))
-        })
-
-
         return () => {
             // socket clean up
             socket.disconnect();
         }
     }, [username, socket])
 
+    // this is to ensure the newest message is visible once it is added to the screen
     useEffect(() => {
-        // ... (your existing code)
-    
-        // Function to scroll to the last message
+        // function to scroll to the last message
         const scrollToBottom = () => {
           messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         };
     
-        // Call scrollToBottom whenever a new message is added to scroll to the latest message
+        // call scrollToBottom whenever a new message is added to scroll to the latest message
         scrollToBottom();
-      }, [messages])
+    }, [messages])
 
     // add message function to add new message to the buffer
     const addMessage = (data) => {
         setMessages((prev) => [...prev, data]) // add message to the end of the message buffer
-        //window.scrollTo(0, document.body.scrollHeight); // scroll to bottom of page so you can see all messages
     }
 
     // helper function to handle commands that are passed through
@@ -101,7 +73,14 @@ const Home = ({ socket }) => {
                 break
             case "users":
                 // get user list and set reason to be for it to print out
-                socket.emit("request_users_cmd", {})
+                socket.emit("request_users", {}, (userList) => {
+                    let users = "System: The current users connected are: "
+                    userList.forEach((user) => {
+                        users = user === username ? users + username + " (you), " : users + user + ", " // this adds (you) next to user that requested it
+                        //users = user == username ? users : users + user + ", " // this line makes it so the user who requested it doesnt show up
+                    })
+                    addMessage(users.replace(/, $/, ''))
+                })
                 break
             case "clear":
                 setMessages([]) // clear buffer
