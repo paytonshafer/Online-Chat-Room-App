@@ -101,7 +101,7 @@ const Home = ({ socket }) => {
                 break
             case "users":
                 // get user list and set reason to be for it to print out
-                socket.emit("request_users", {reason: 0})
+                socket.emit("request_users_cmd", {})
                 break
             case "clear":
                 setMessages([]) // clear buffer
