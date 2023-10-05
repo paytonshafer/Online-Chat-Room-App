@@ -1,11 +1,10 @@
 /*TODO:
 Upgrade UI -> create react app
-    /user function -> get list of connected users
     ensure distinct usernames
     /username -> change username with fail, pass and when another user does it
-    /clear command
 Update readme
 Upgrade UI to make interface look nice: login page, chat feed, message input, maybe logout screen
+Some kind on logging on backend, keep trakc of who joins and leaves, maybe for now just have a log file
 Integrate database to backend
 add more commands:
     /me - allow users to set a description, allow others to get description
@@ -98,7 +97,7 @@ io.on("connection", (socket) => {
         gone_user = getKeyByValue(connectedClients, socket)
         if(gone_user){
             // log that the user left
-            console.log(gone_user + ' joined (socket id: ' + socket.id + ')')
+            console.log(gone_user + ' left (socket id: ' + socket.id + ')')
             // remove said user from the map
             connectedClients.delete(gone_user)
             // call user_leave event and send username of user who left
