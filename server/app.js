@@ -1,7 +1,7 @@
 /*TODO:
 Upgrade UI to make interface look nice: login page, chat feed, message input, maybe logout screen
-Some kind on logging on backend, keep trakc of who joins and leaves, maybe for now just have a log file
-select what "room" to join or dm someone -> set a room string and then socket.join(room), io.in(room).emit()
+Set up some way to clear out logs
+select what "room" to join -> set a room string and then socket.join(room), io.in(room).emit()
 moderator/admin tools: mute user, delete messages -> do we need db for this? how to know a user is admin
 Integraete database to backend:
     choose db service and link up to backend
@@ -30,7 +30,12 @@ const { createServer } = require('http');
 const { Server } = require("socket.io")
 // import cors to ensure data can be sent between server and sockets
 const cors = require('cors');
+// require winston and needed functions for logging
+const { createLogger, format, transports } = require('winston');
 
+
+// set port, check for env file with specified port, if not there use 3000
+const port = process.env.PORT || 8000;
 // 'constructor' of express module, we use app for everything now
 const app = express();
 // set up cors for app
@@ -44,20 +49,23 @@ const io = new Server(server, {
     }
 })
 
-// set port, check for env file with specified port, if not there use 3000
-const port = process.env.PORT || 8000;
+// initialize logger object to log to console and to app.log file
+const logger = createLogger({
+    level: 'info', // set the minimum log level to "info"
+    format: format.combine(
+        format.timestamp(), // get time stamp for log
+        format.printf(({ timestamp, level, message }) => {
+        return `${timestamp} [${level}]: ${message}`; // create function to print in this format
+        })
+    ),
+    transports: [ // set where logging will happen
+        new transports.Console(), // log to the console
+        new transports.File({ filename: 'app.log' }) // log to the log file
+    ]
+});
+
 // create a map to store the usernames and their respective socket
 const connectedClients = new Map()
-
-/* migrated to react app so no longer need to serve the html file here
-// serve static files from the public directory
-app.use(express.static(__dirname + "/public"));
-
-// on the request to the url / return the index.html file as the page
-app.get("/", (req, res) => {
-    res.sendFile(__dirname + "/index.html"); //send the html file
-});
-*/
 
 // Helper Functions
 // function to get the value of a map by the key, returns null if client isnt found
@@ -73,73 +81,90 @@ const getKeyByValue = (map, targetValue) => {
 
 // on connection event create these event listeners on the new socket
 io.on("connection", (socket) => {
-    // create an event for when user joins and add then to list and let all connected users know
-    socket.on("user_join", (data) => { // data is the new username
-        if(data){ // unsure data is not null so only real users can be added
-            console.log(data + ' joined (socket id: ' + socket.id + ')')
-            connectedClients.set(data, socket); // add new user and their socket to client list
-            // call user_join event and send the bew users username
-            socket.broadcast.emit("user_join", data);
-        }
-    });
+    try {
+        // create an event for when user joins and add then to list and let all connected users know
+        socket.on("user_join", (data) => { // data is the new username
+            try {
+                if(data){ // unsure data is not null so only real users can be added
+                        logger.info(data + ' joined (socket id: ' + socket.id + ')')
+                        connectedClients.set(data, socket); // add new user and their socket to client list
+                        // call user_join event and send the bew users username
+                        socket.broadcast.emit("user_join", data);
+                    }
+            } catch (error) {
+                logger.error("User join error for " + socket.id + " (" + data + ") :", error)
+            }
+        });
 
-    // create an event when you send a message to send message to all other users
-    socket.on("chat_message", (data) => { // data is username of sender and message
-        // call chat_message event and send the message data (username of sender and message)
-        socket.broadcast.emit("chat_message", data);
-    });
+        // create an event when you send a message to send message to all other users
+        socket.on("chat_message", (data) => { // data is username of sender and message
+            try {
+                // call chat_message event and send the message data (username of sender and message)
+                socket.broadcast.emit("chat_message", data);
+            } catch (error) {
+                logger.error("Send chat message error for " + socket.id + " :", error)
+            }
+        });
 
-    // create an event for the user on disconnect to let all other user know they left
-    socket.on("disconnect", () => {
-        // get username from socket that left
-        gone_user = getKeyByValue(connectedClients, socket)
-        if(gone_user){
-            // log that the user left
-            console.log(gone_user + ' left (socket id: ' + socket.id + ')')
-            // remove said user from the map
-            connectedClients.delete(gone_user)
-            // call user_leave event and send username of user who left
-            socket.broadcast.emit("user_leave", gone_user);
-        }
-    })
+        // create an event for the user on disconnect to let all other user know they left
+        socket.on("disconnect", () => {
+            try {            // get username from socket that left
+                gone_user = getKeyByValue(connectedClients, socket)
+                if(gone_user){
+                    // log that the user left
+                    logger.info(gone_user + ' left (socket id: ' + socket.id + ')')
+                    // remove said user from the map
+                    connectedClients.delete(gone_user)
+                    // call user_leave event and send username of user who left
+                    socket.broadcast.emit("user_leave", gone_user);
+                }
+            } catch (error) {
+                logger.error("Disconnect error for " + socket.id + " :", error)
+            }
 
-    /* archive way from before react frontend
-    // create event to request a list of requested users and send back to same user
-    socket.on('request_users', (data) => { // data contains the reason for request, 0 is to print user list and 1 is to get on login
-        if(data.reason == 0){
-            // call event user_list_cmd and send the username list with it to be printed
-            socket.emit("user_list_cmd", [...connectedClients.keys()])
-        } else if(data.reason == 1){
-            // here we send the user list, this is onlh emitted on first loading
-            socket.emit("user_list_initial", [...connectedClients.keys()])
-        }
-        // NOTE: add .filter((item) => {item !== null}) after the returned array if a null shows up in the client list
-    })*/
+        })
 
-    // event for requesting user list that can be used with a callback function
-    socket.on('request_users', (data, callback) => {
-        // send username list back
-        callback([...connectedClients.keys()])
-    })
+        // event for requesting user list that can be used with a callback function
+        socket.on('request_users', (data, callback) => {
+            // send username list back
+            callback([...connectedClients.keys()])
+        })
 
-    // craete event for when someone wants to change their username they request here
-    socket.on('changed_username', (data) => { // data has old and new username
-        console.log(data.old + ' changed username to ' + data.new + ' (socket id: ' + socket.id + ')') // log that a user changed their name
-        connectedClients.delete(data.old) // delete old username
-        connectedClients.set(data.new, socket) // add new username
-        socket.broadcast.emit('other_name_change', data) // broadcast to all other users
-    })
+        // craete event for when someone wants to change their username they request here
+        socket.on('changed_username', (data) => { // data has old and new username
+            try{
+                connectedClients.delete(data.old) // delete old username
+                connectedClients.set(data.new, socket) // add new username
+                socket.broadcast.emit('other_name_change', data) // broadcast to all other users
+                logger.info(data.old + ' changed username to ' + data.new + ' (socket id: ' + socket.id + ')') // log that a user changed their name
+            } catch (error) {
+                logger.error("Change username error for " + socket.id + " :", error)
+            }
+        })
 
-    // event for when you send a direct message to only one user
-    socket.on('send_direct_message', (data) => { // data has sender, receiver and the message
-        receiver_socket = connectedClients.get(data.receiver) // get receiver socket
-        receiver_socket.emit("receive_direct_message", data) // send direct message to the socket
-    })
+        // event for when you send a direct message to only one user
+        socket.on('send_direct_message', (data) => { // data has sender, receiver and the message
+            try {
+                receiver_socket = connectedClients.get(data.receiver) // get receiver socket
+                receiver_socket.emit("receive_direct_message", data) // send direct message to the socket
+            } catch (error) {
+                logger.error("Send direct message error for " + socket.id + " :", error)
+            }
+        })
+    } catch (error) {
+        logger.error("Connection setup error:", error);
+    }
 });
 
 // we ensure that the http server is listening on given port, if it is we output where it is listening
 server.listen(port, () => {
-    console.log("Listening on port:" + port);
+    logger.info("Listening on port:" + port); // log that startup was successful
+});
+
+// handle server startup errors
+server.on('error', (error) => {
+    // log the error if it happens.
+    logger.error('Server startup error:', error);
 });
 
 /*
