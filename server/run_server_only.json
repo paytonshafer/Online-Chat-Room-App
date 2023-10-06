@@ -4,9 +4,8 @@
   "description": "A simple chat app with express and socket.io",
   "main": "app.js",
   "scripts": {
-    "start": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "node app.js",
-    "client": "cd ../frontend && npm start"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
   },
   "author": "Payton Shafer",
   "license": "MIT",
@@ -19,4 +18,3 @@
     "concurrently": "^8.2.1"
   }
 }
-  
