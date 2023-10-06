@@ -71,6 +71,7 @@ This is a chat room application built using React.js, Node.js, Express, and Sock
 - Use `/users` to list all connected users in the chat room.
 - Use `/clear` to clear all the messages on your screen.
 - Use `/username new_username` to change user username to new_username if new_username is not taken by anyone else in the room.
+- Use `/direct other_user message` to send a direct message, where message is the message to send, to other_user.
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

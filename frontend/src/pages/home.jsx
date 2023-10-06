@@ -12,8 +12,8 @@ const Home = ({ socket }) => {
     /help: Display this help message, listing available commands.<br />
     /users: List all connected users in the chat room.<br />
     /clear: Clear all messages on your screen.<br />
-    /username new_username: Change your username to a new, but still unique, one.<br />
-    /ai message: Send a message to the AI chat bot. (not complete yet)<br /><br />
+    /username new_username: Change your username to new_username, but username must still be unique.<br />
+    /direct other_user message: Send a direct message to only other_user. <br /><br />
     
     Feel free to use these commands to explore and interact with the chat room. If you have any questions or need assistance, don't hesitate to ask!<br />
     Happy chatting! 🚀`; // help message to be displayed to user
@@ -43,6 +43,11 @@ const Home = ({ socket }) => {
         // annouce that another user changed their username
         socket.on('other_name_change', (data) => {
             addMessage("System: The user '" + data.old + "' changed their username to '" + data.new + "'.") // add user change name
+        })
+
+        // when we receive a direct message
+        socket.on('receive_direct_message', (data) => {
+            addMessage(data.sender + " (direct message): " + data.message) //add message to buffer and not that it is a direct message
         })
 
         return () => {
@@ -111,6 +116,26 @@ const Home = ({ socket }) => {
                         socket.emit('changed_username', {old: username, new: new_username}) // emit username change
                         setUsername(new_username) // set username variable
                         addMessage("System: You are now in the chat as '" + new_username  + "'."); // let them know it passed and they have new username
+                    }
+                })
+                break
+            case "direct":
+                let other_user = params[0] // get other user
+                let message = params.slice(1).join(' ') // get message and repair to whole string with spaces
+
+                if(other_user === username){ // check if other_user is you
+                    addMessage('System: The username you entered is your own username. You can not send a direct message to yourself.')
+                    break
+                }
+
+                // since other_user is not you, get user list to check if they exist
+                socket.emit("request_users", {}, (userList) => {
+                    if(userList.includes(other_user)){ // if the other user exits
+                        socket.emit("send_direct_message", {sender: username, receiver: other_user, message: message}) // send message
+                        // do I want to add confirmation message?
+                    } else {
+                        // otherwise tell user that the user they want to send to doesnt exist
+                        addMessage("System: Unable to send message because a user named '" + other_user + "' does not exist. Use '/users' to get a list of current users in the room.")
                     }
                 })
                 break

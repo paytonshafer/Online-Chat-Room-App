@@ -14,13 +14,13 @@ Integraete database to backend:
 add more commands:
     /me - allow users to set a description, allow others to get description
     /desc - get aboce descriptions ex. /desc username
-    chat with ai, ex /ai tell me about egyot -> pull prompt and send to gpt with ai
-    get weather, 
-    get rand quote, 
     ignore messages from specific user
-    send message to a single user
     game/riddle - launch text game in room
-    /define - define a word when 
+    cmds with api:
+        /define - define a word
+        chat with ai, ex /ai tell me about egyot -> pull prompt and send to gpt with ai
+        get weather of given city
+        get quote
 */
 // import express which is a helper to ask act as web server
 const express = require("express");
@@ -128,6 +128,12 @@ io.on("connection", (socket) => {
         connectedClients.delete(data.old) // delete old username
         connectedClients.set(data.new, socket) // add new username
         socket.broadcast.emit('other_name_change', data) // broadcast to all other users
+    })
+
+    // event for when you send a direct message to only one user
+    socket.on('send_direct_message', (data) => { // data has sender, receiver and the message
+        receiver_socket = connectedClients.get(data.receiver) // get receiver socket
+        receiver_socket.emit("receive_direct_message", data) // send direct message to the socket
     })
 });
 
