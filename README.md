@@ -1,7 +1,7 @@
 # Chat Room Application
 
 ## Overview
-This is a chat room application built using React.js, Node.js, Express, and Socket.io. It allows users to join chat rooms, send messages, view the list of connected users, and other commands the use can see with the `/help` command or below. The application supports basic commands to enhance the chat experience.
+This is a chat room application built using React.js, Node.js, Express, and Socket.io. It allows users to join chat rooms, send messages, view the list of connected users, and other commands the user can see with the `/help` command or below. The application supports basic commands to enhance the chat experience.
 
 ## Features
 - Join chat rooms with unique usernames.
