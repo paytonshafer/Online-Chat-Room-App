@@ -1,8 +1,16 @@
 /*TODO:
-Update readme
 Upgrade UI to make interface look nice: login page, chat feed, message input, maybe logout screen
 Some kind on logging on backend, keep trakc of who joins and leaves, maybe for now just have a log file
-Integrate database to backend
+select what "room" to join or dm someone -> set a room string and then socket.join(room), io.in(room).emit()
+moderator/admin tools: mute user, delete messages -> do we need db for this? how to know a user is admin
+Integraete database to backend:
+    choose db service and link up to backend
+    store room history -> /history command to get history back
+    store user into and credentials
+    login systen
+    profile icon
+    friend list 
+    user status (online or offline)
 add more commands:
     /me - allow users to set a description, allow others to get description
     /desc - get aboce descriptions ex. /desc username
@@ -13,13 +21,6 @@ add more commands:
     send message to a single user
     game/riddle - launch text game in room
     /define - define a word when 
-login systen
-profile icon
-friend list 
-user status (online or offline)
-select what "room" to join or dm someone -> set a room string and then socket.join(room), io.in(room).emit()
-integrate database to save previous messages in a room -> /history command to get history back
-moderation tools:mute user, delete messages
 */
 // import express which is a helper to ask act as web server
 const express = require("express");
