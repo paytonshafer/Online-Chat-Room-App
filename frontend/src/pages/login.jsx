@@ -5,26 +5,26 @@ import { useUserContext } from '../context/UserContext'; // get username context
 // login page
 const Login = ({ socket }) => {
     // NOTE for when we redesign front end -> username can not contain any spaces
-    const [username, setUsername] = useState(''); // set state for username
+    const [temp_username, setTempUsername] = useState(''); // set state for username
     const [usernameTaken, setusernameTaken] = useState(false) // state for showing username taken message
     const navigate = useNavigate(); // initailize naviagtor
-    const { login } = useUserContext(); // get login function to set the username in the context
+    const { setUsername } = useUserContext(); // get login function to set the username in the context
 
     // function to handle username submission
     const handleLogin = (e) => {
         e.preventDefault(); // prevent default
         
-        if(username.trim() === ""){ // ensure blank or just spaces as username cant be submitted
-            setUsername("")
+        if(temp_username.trim() === ""){ // ensure blank or just spaces as username cant be submitted
+            setTempUsername("")
         } else {
             socket.emit('request_users', {}, (userList) => {
                 // check if username is already taken
-                if(userList.includes(username)){
+                if(userList.includes(temp_username)){
                     setusernameTaken(true) // show taken message
-                    setUsername("") // set username to blank (also clears input box)
+                    setTempUsername("") // set username to blank (also clears input box)
                 } else {
-                    login(username); // set username in context
-                    socket.emit("user_join", username); // send to server to broadcast that new user joined
+                    setUsername(temp_username); // set username in context
+                    socket.emit("user_join", temp_username); // send to server to broadcast that new user joined
                     navigate('/home'); // send user to the homepage
                     setusernameTaken(false) // reset usernmaeTaken field
                 }
@@ -42,8 +42,8 @@ const Login = ({ socket }) => {
             <input
                 type="text"
                 id="username"
-                value={username.trim()}
-                onChange={(e) => setUsername(e.target.value)}
+                value={temp_username.trim()}
+                onChange={(e) => setTempUsername(e.target.value)}
                 required
             />
             </div>

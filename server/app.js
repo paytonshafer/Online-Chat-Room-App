@@ -1,7 +1,4 @@
 /*TODO:
-Upgrade UI -> create react app
-    ensure distinct usernames
-    /username -> change username with fail, pass and when another user does it
 Update readme
 Upgrade UI to make interface look nice: login page, chat feed, message input, maybe logout screen
 Some kind on logging on backend, keep trakc of who joins and leaves, maybe for now just have a log file
@@ -125,15 +122,11 @@ io.on("connection", (socket) => {
     })
 
     // craete event for when someone wants to change their username they request here
-    socket.on('change_username_req', (data) => { // data has old and new username
-        if(connectedClients.has(data.new)){ // if username is in the client list
-            socket.emit('change_username_fail', [...connectedClients.keys()]) // send back failed along with current user list
-        } else {
-            connectedClients.delete(data.old) // delete old username
-            connectedClients.set(data.new, socket) // add new username
-            socket.emit('change_username_pass', data.new) // send back pass with new username
-            socket.broadcast.emit('other_name_change', data) // broadcast to all other users
-        }
+    socket.on('changed_username', (data) => { // data has old and new username
+        console.log(data.old + ' changed username to ' + data.new + ' (socket id: ' + socket.id + ')') // log that a user changed their name
+        connectedClients.delete(data.old) // delete old username
+        connectedClients.set(data.new, socket) // add new username
+        socket.broadcast.emit('other_name_change', data) // broadcast to all other users
     })
 });
 

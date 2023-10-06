@@ -12,20 +12,18 @@ const Home = ({ socket }) => {
     /help: Display this help message, listing available commands.<br />
     /users: List all connected users in the chat room.<br />
     /clear: Clear all messages on your screen.<br />
-    /username: Change your username; you still must have a unique name.<br />
+    /username new_username: Change your username to a new, but still unique, one.<br />
     /ai message: Send a message to the AI chat bot. (not complete yet)<br /><br />
     
     Feel free to use these commands to explore and interact with the chat room. If you have any questions or need assistance, don't hesitate to ask!<br />
     Happy chatting! 🚀`; // help message to be displayed to user
-    const [message, setMessage] = useState('') // message state of current message
-    const [messages, setMessages] = useState([]) // message bufer
-    const { username } = useUserContext(); // get username from user context
-    const messagesEndRef = useRef(null); // useRef to scroll to bottom of message buffer
+    const { username, setUsername } = useUserContext(); // get username from user context, setUsername function to set username
+    const messagesEndRef = useRef(null); // useRef to use as a ref to scroll to bottom of message buffer
+    const [message, setMessage] = useState('') // message state of current message in input
+    const [messages, setMessages] = useState(["System: You have joined the chat as '" + username  + "'. Send /help for a list of commands."]) // message bufer with initial message
 
-    // use effect on initial load that sets listeners and adds initial message
+    // use effect on initial load that sets listeners
     useEffect(() => {
-        addMessage("System: You have joined the chat as '" + username  + "'. Send /help for a list of commands."); // add message when you join
-
         // SOCKET.IO EVENT LISTENERS
         // setting what happens when chat_message is emitted
         socket.on("chat_message", (data) => {
@@ -42,11 +40,16 @@ const Home = ({ socket }) => {
             addMessage("System: " + data + " has left the chat."); // add user left message
         })
 
+        // annouce that another user changed their username
+        socket.on('other_name_change', (data) => {
+            addMessage("System: The user '" + data.old + "' changed their username to '" + data.new + "'.") // add user change name
+        })
+
         return () => {
             // socket clean up
             socket.disconnect();
         }
-    }, [username, socket])
+    }, [socket])
 
     // this is to ensure the newest message is visible once it is added to the screen
     useEffect(() => {
@@ -57,7 +60,7 @@ const Home = ({ socket }) => {
     
         // call scrollToBottom whenever a new message is added to scroll to the latest message
         scrollToBottom();
-    }, [messages])
+    }, [messages]) // run this when messages is changed
 
     // add message function to add new message to the buffer
     const addMessage = (data) => {
@@ -65,14 +68,17 @@ const Home = ({ socket }) => {
     }
 
     // helper function to handle commands that are passed through
-    const handleCommands = (cmd) => {
+    const handleCommands = (cmd_and_params) => {
+        const cmd_params_list = cmd_and_params.split(" ") // get list of command used and params
+        const cmd = cmd_params_list[0] // get command used
+        const params = cmd_params_list.slice(1) // get param list
         switch (cmd) {
             case "help":
                 // add below message to let the user know their command options
                 addMessage(helpMessage)
                 break
             case "users":
-                // get user list and set reason to be for it to print out
+                // get user list and print it out in message buffer
                 socket.emit("request_users", {}, (userList) => {
                     let users = "System: The current users connected are: "
                     userList.forEach((user) => {
@@ -84,23 +90,34 @@ const Home = ({ socket }) => {
                 break
             case "clear":
                 setMessages([]) // clear buffer
-                addMessage("System: You are in the chat as '" + username  + "'. Use /help for help and a list of commands."); // add at top so they know how to get help
+                addMessage("System: You are in the chat as '" + username  + "'. Use /help for help and a list of commands."); // add at top so they know how to get help and current username
                 break
-            /*case "username":
-                // get new username
-                let new_username = prompt('Please enter a new username:')
-                if(new_username == username){ // check if username is same as old
-                    addMessage('System: The username you entered is your current username. Please try again.')
+            case "username":
+                // set new username
+                let new_username = params[0] // get new username as first cmd
+                if(new_username === username){ // check if username is same as old
+                    addMessage('System: The username you entered is your current username. Please try again with a new username.')
                     break
                 }
-                // if not ask server to check if it is a valid username and wait for response
-                socket.emit("change_username_req", {new: new_username, old: username})
-                break*/
+                // if not ask server for list of connected users
+                socket.emit("request_users", {}, (userList) => {
+                    if(userList.includes(new_username)){ // if the requested new username is taken
+                        let unavailable = "The current users connected are: "
+                        userList.forEach((user) => { // format user list and add (current) next to their name
+                            unavailable = user === username ? unavailable + username + " (current), " : unavailable + user + ", "
+                        })
+                        addMessage('System: The username you requested is already taken by someone else. Please try again. \nThe list of unavailable usernames is: ' + unavailable.replace(/, $/, '') + '.')
+                    } else { // if not reset their username and let current user and everyone know
+                        socket.emit('changed_username', {old: username, new: new_username}) // emit username change
+                        setUsername(new_username) // set username variable
+                        addMessage("System: You are now in the chat as '" + new_username  + "'."); // let them know it passed and they have new username
+                    }
+                })
+                break
             default:
                 // only gets here if they tried to use a command that we don't have
                 addMessage('System: Invalid command, please try again')
-        }
-    }
+        }    }
 
     // function to handle message send
     const handleSend = (event) => {
