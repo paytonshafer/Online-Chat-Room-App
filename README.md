@@ -6,8 +6,8 @@ This is a simple chat room application built using Node.js, Express, and Socket.
 ## Features
 - Join chat rooms with unique usernames.
 - Send and receive real-time messages.
-- List all connected users.
-- Basic command support (e.g., /help, /users).
+- Change username while ensureing everyone has a unique name.
+- Basic command support (e.g., /help, /users, /clear).
 
 ## Getting Started
 
@@ -28,7 +28,25 @@ This is a simple chat room application built using Node.js, Express, and Socket.
    cd chat-room-app
    ```
 
-3. Install the required dependencies:
+3. Navigate to the frontend directory:
+
+   ```
+   cd frontend
+   ```
+
+4. Install the required dependencies:
+
+   ```
+   npm install
+   ```
+
+5. Navigate to the server directory:
+
+   ```
+   cd ../server
+   ```
+
+6. Install the required dependencies:
 
    ```
    npm install
@@ -36,7 +54,7 @@ This is a simple chat room application built using Node.js, Express, and Socket.
 
 ### Usage
 
-1. Start the server:
+1. Start the application (this will start the frontend and the backend):
 
    ```
    npm start
@@ -46,14 +64,16 @@ This is a simple chat room application built using Node.js, Express, and Socket.
 
 3. Enter your desired username when prompted.
 
-4. Start chatting with other users by typing messages in the input field and pressing Enter.
+4. Start chatting with other users by typing messages in the input field and pressing enter.
 
 ### Commands
 - Use `/help` to display a list of available commands and their descriptions.
 - Use `/users` to list all connected users in the chat room.
+- Use `/clear` to clear all the messages on your screen.
+- Use `/username new_username` to change user username to new_username if new_username is not taken by anyone else in the room.
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
-- Special thanks to the Node.js, Express, and Socket.io communities for their excellent libraries.
+- Special thanks to the React.js, Node.js, Express, and Socket.io communities for their excellent libraries.
