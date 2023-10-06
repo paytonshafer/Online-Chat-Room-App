@@ -19,13 +19,13 @@ This is a chat room application built using React.js, Node.js, Express, and Sock
 1. Clone this repository to your local machine:
 
    ```
-   git clone https://github.com/yourusername/chat-room-app.git
+   git clone https://github.com/paytonshafer/Online-Chat-Room-App.git
    ```
 
 2. Navigate to the project directory:
 
    ```
-   cd chat-room-app
+   cd Online-Chat-Room-App
    ```
 
 3. Navigate to the frontend directory:
@@ -54,7 +54,7 @@ This is a chat room application built using React.js, Node.js, Express, and Sock
 
 ### Usage
 
-1. Start the application (this will start the frontend and the backend):
+1. Start the application from the server directory (this will start the frontend and the backend):
 
    ```
    npm start
