@@ -33,12 +33,12 @@ const Login = ({ socket }) => {
     };
 
     return (
-        <div className="login-container">
+        <div>
         <h1>Login</h1>
         <h3>{usernameTaken ? "That username is taken please try another one" : ""}</h3>
         <form onSubmit={handleLogin}>
-            <div className="form-group">
-            <label htmlFor="username">Username:</label>
+            <div>
+            <label>Username:</label>
             <input
                 type="text"
                 id="username"

@@ -100,6 +100,10 @@ const Home = ({ socket }) => {
             case "username":
                 // set new username
                 let new_username = params[0] // get new username as first cmd
+                if(!new_username){
+                    addMessage('System: You did not enter a new username. Please try again.')
+                    break
+                }
                 if(new_username === username){ // check if username is same as old
                     addMessage('System: The username you entered is your current username. Please try again with a new username.')
                     break
