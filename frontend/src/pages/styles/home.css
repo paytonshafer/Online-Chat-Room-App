@@ -1,18 +1,3 @@
-body {
-    margin: 0;
-    font-family: sans-serif;
-}
-
-h1 {
-    font-size: 28px;
-    color: #333;
-    text-align: center;
-    padding-top: 20px;
-    padding-bottom: 20px;
-    margin: 0;
-    border-bottom: 2px solid #333;
-}
-
 /*format the form, fix it to the bottom and make flex box*/
 form {
     position: fixed;
@@ -65,5 +50,5 @@ form button:hover {
 
 /*color every other message a slightly different background*/
 .messages li:nth-child(odd) {
-    background: #eee;
+    background: #e0e0e0;
 }

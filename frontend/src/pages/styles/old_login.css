@@ -1,0 +1,30 @@
+.login-container {
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.username {
+    display: flex;
+    flex-direction: row;
+    width: 450px;
+    justify-content: space-around;
+}
+
+.username input {
+    width: 300px;
+}
+
+/* Error Message Styles */
+.error-message {
+    color: #ff0000;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Hidden Class (for error message) */
+.hidden {
+    display: none;
+}
