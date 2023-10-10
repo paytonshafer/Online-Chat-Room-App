@@ -49,9 +49,9 @@ const server = createServer(app);
 // create io instance of socket.io server and add cors route
 const io = new Server(server, {
     cors: {
-        //origin: "http://localhost:3000"
+        origin: "http://localhost:3000"
         // add whitelist to allow more than 1 origin, add chloes ip
-        origin: "*" //uncomment and comment above to allow for any connection
+        //origin: "*" //uncomment and comment above to allow for any connection
     }
 })
 
