@@ -1,8 +1,7 @@
 /*TODO:
 Upgrade UI to make interface look nice: login page, chat feed, message input, maybe logout screen
-    make messages send by user come up on one side vs other messages -> maybe remove colors then?
-        when username is changed all of the past messages get discolored
     add tool tips - like on disabled buttons
+    add Home page, chat page and feature page
 env files for front and backend to hold port, weather run is dev or deploy, 
 Set up some way to clear out logs
 select what "room" to join -> set a room string and then socket.join(room), io.in(room).emit()

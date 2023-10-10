@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef  } from 'react';
+import { useNavigate } from 'react-router-dom'; // navigate through pages
 import { useUserContext } from '../context/UserContext'; // get user info through context
-import { MDBBtn, MDBInput, MDBCard, MDBCardHeader, MDBCardBody } from 'mdb-react-ui-kit'; 
-import './styles/home.css'
+import { MDBBtn, MDBInput, MDBCard, MDBCardHeader, MDBCardBody, MDBContainer, MDBRow, MDBCol } from 'mdb-react-ui-kit'; 
 
 // home page, for now this is where the chat is
 const Home = ({ socket }) => {
@@ -16,12 +16,13 @@ const Home = ({ socket }) => {
     /username new_username: Change your username to new_username, but username must still be unique.<br />
     /direct other_user message: Send a direct message to only other_user. <br /><br />
     
-    Feel free to use these commands to explore and interact with the chat room. If you have any questions or need assistance, don't hesitate to ask!<br />
+    Feel free to use these commands to explore and interact with the chat room.<br />
     Happy chatting! 🚀`; // help message to be displayed to user
-    const { username, setUsername } = useUserContext(); // get username from user context, setUsername function to set username
+    const { id, username, setUsername } = useUserContext(); // get username from user context, setUsername function to set username
     const messagesEndRef = useRef(null); // useRef to use as a ref to scroll to bottom of message buffer
     const [message, setMessage] = useState('') // message state of current message in input
     const [messages, setMessages] = useState(["System: You have joined the chat as '" + username  + "'. Send /help for a list of commands."]) // message bufer with initial message
+    const navigate = useNavigate(); // initailize naviagtor
 
     // use effect on initial load that sets listeners
     useEffect(() => {
@@ -56,6 +57,20 @@ const Home = ({ socket }) => {
             socket.disconnect();
         }
     }, [socket])
+
+    // use effect to ensure that if there is no username you will be directed to login
+    useEffect(() => {
+        if(!username){ // if username is null send to login
+            navigate('/')
+        }
+
+        return () => {
+            // socket clean up if the username is null
+            if(!username){
+                socket.disconnect();c
+            }
+        }
+    }, [username, navigate, socket])
 
     // this is to ensure the newest message is visible once it is added to the screen
     useEffect(() => {
@@ -155,7 +170,7 @@ const Home = ({ socket }) => {
 
         // if the message is not empty add it to personal buffer
         if(message.trim() !== "") {
-            addMessage(username + ': ' + message)
+            addMessage(id + username + ': ' + message)
         }
 
         // check for commands and an empty prompt
@@ -175,23 +190,32 @@ const Home = ({ socket }) => {
 
     return (
         <div>
-            <ul className="p-0 messages mb-8">
-                {/*messages.map((data, index) => (
-                    <li key={index}>
-                        <div dangerouslySetInnerHTML={{ __html: data }}></div>
-                    </li>
-                ))*/}
+            <ul className="p-0 m-0 mt-2 mb-8">
+                <MDBContainer className='mx-6 p-0'>
                 {messages.map((data, index) => (
-                    data.split(': ')[0] === username ?
-                    <MDBCard key={index} background='primary' shadow='1' className='w-75 my-2 ms-3' style={{color: 'white'}}>
-                        <MDBCardHeader className='p-0 ps-2 py-2' >{data.split(': ')[0]}</MDBCardHeader>
-                        <MDBCardBody className='p-2'><div dangerouslySetInnerHTML={{ __html: data.split(': ').slice(1).join(' ') }}></div></MDBCardBody>
-                    </MDBCard> :
-                    <MDBCard key={index} background='secondary' shadow='1' className='w-75 my-2 ms-3' style={{color: 'white'}}>
-                        <MDBCardHeader className='p-0 ps-2 py-2' >{data.split(': ')[0]}</MDBCardHeader>
-                        <MDBCardBody className='p-2'><div dangerouslySetInnerHTML={{ __html: data.split(': ').slice(1).join(' ') }}></div></MDBCardBody>
-                    </MDBCard>
+                    data.split(': ')[0].includes(id) // if the message is sent by the current user diff style
+                    ?
+                    <MDBRow end key={index} style={{marginLeft: '20rem'}}>
+                        <MDBCol md='auto' className='m-0'>
+                            <MDBCard background='primary' shadow='1' className='my-1' style={{color: 'white'}}>
+                                <MDBCardHeader className='p-0 p-2 text-end' >{data.split(': ')[0].slice(10)}</MDBCardHeader>
+                                {username.length >=  data.split(': ').slice(1).join(': ').length ?
+                                <MDBCardBody className='p-2 text-end'><div dangerouslySetInnerHTML={{ __html: data.split(': ').slice(1).join(': ') }}></div></MDBCardBody> :
+                                <MDBCardBody className='p-2'><div dangerouslySetInnerHTML={{ __html: data.split(': ').slice(1).join(': ') }}></div></MDBCardBody>}
+                            </MDBCard>
+                        </MDBCol>
+                    </MDBRow> 
+                    :
+                    <MDBRow start key={index} style={{marginRight: '20rem'}}>
+                    <MDBCol md='auto' className='m-0'>
+                            <MDBCard background='secondary' shadow='1' className=' my-1' style={{color: 'white'}}>
+                                <MDBCardHeader className='p-0 p-2' >{data.split(': ')[0]}</MDBCardHeader>
+                                <MDBCardBody className='p-2'><div dangerouslySetInnerHTML={{ __html: data.split(': ').slice(1).join(': ') }}></div></MDBCardBody>
+                            </MDBCard>
+                        </MDBCol>
+                    </MDBRow>
                 ))}
+                </MDBContainer>
                 {/* Use the ref to scroll to the last message */}
                 <div ref={messagesEndRef}></div>
             </ul>
@@ -211,7 +235,5 @@ const Home = ({ socket }) => {
         </div>
     );
 }
-
-//<button class="ripple ripple-surface ripple-surface-light btn btn-primary mb-4 w-100" role="button" type="submit">Sign in</button>
 
 export default Home
