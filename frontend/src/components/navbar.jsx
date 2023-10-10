@@ -15,7 +15,7 @@ MDBBtn
 
 const NavBar = () => {
     const [showNav, setShowNav] = useState(false);
-    const [activePage, setActivePage] = useState('chat')
+    const [activePage, setActivePage] = useState('home')
     const { username } = useUserContext(); // get username from user context
     const navigate = useNavigate()
 

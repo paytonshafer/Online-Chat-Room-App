@@ -207,9 +207,9 @@ const Chat = ({ socket }) => {
                         <MDBCol md='auto' className='m-0'>
                             <MDBCard background='primary' shadow='1' className='my-1' style={{color: 'white'}}>
                                 <MDBCardHeader className='p-0 p-2 text-end fw-bold' >{data.split(': ')[0].slice(10)}</MDBCardHeader>
-                                {username.length >=  data.split(': ').slice(1).join(': ').length ?
-                                <MDBCardBody className='p-2 text-end'><div dangerouslySetInnerHTML={{ __html: data.split(': ').slice(1).join(': ') }}></div></MDBCardBody> :
-                                <MDBCardBody className='p-2'><div dangerouslySetInnerHTML={{ __html: data.split(': ').slice(1).join(': ') }}></div></MDBCardBody>}
+                                {username.length >=  data.split(': ').slice(1).join(': ').length 
+                                ? <MDBCardBody className='p-2 text-end'><div dangerouslySetInnerHTML={{ __html: data.split(': ').slice(1).join(': ') }}></div></MDBCardBody> 
+                                : <MDBCardBody className='p-2'><div dangerouslySetInnerHTML={{ __html: data.split(': ').slice(1).join(': ') }}></div></MDBCardBody>}
                             </MDBCard>
                         </MDBCol>
                     </MDBRow> 
