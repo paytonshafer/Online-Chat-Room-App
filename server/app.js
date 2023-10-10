@@ -1,11 +1,15 @@
 /*TODO:
-Upgrade UI to make interface look nice: login page, chat feed, message input, maybe logout screen
-    add tool tips - like on disabled buttons
-    add Home page, chat page and feature page
+UI Upgrades;
+    Home page - welcome username, eventually room selection, for now single room connection, show users in room
+    Chat page - current home page, no changes as of now
+    Feature page - show available commands 
+    Change in capitalization makes usernames different -> Payton vs payton, when check put all to lowercase
+    Make system messages different color?
+    Push messages toward center? -> increase outer margin
+    tool tips?
 env files for front and backend to hold port, weather run is dev or deploy, 
 Set up some way to clear out logs
 select what "room" to join -> set a room string and then socket.join(room), io.in(room).emit()
-moderator/admin tools: mute user, delete messages -> do we need db for this? how to know a user is admin
 Integraete database to backend:
     choose db service and link up to backend
     store room history -> /history command to get history back
@@ -14,6 +18,7 @@ Integraete database to backend:
     profile icon
     friend list 
     user status (online or offline)
+moderator/admin tools: mute user, delete messages -> do we need db for this? how to know a user is admin
 add more commands:
     /me - allow users to set a description, allow others to get description
     /desc - get aboce descriptions ex. /desc username
@@ -48,9 +53,9 @@ const server = createServer(app);
 // create io instance of socket.io server and add cors route
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:3000"
+        //origin: "http://localhost:3000"
         // add whitelist to allow more than 1 origin, add chloes ip
-        //origin: "*" //uncomment and comment above to allow for any connection
+        origin: "*" //uncomment and comment above to allow for any connection
     }
 })
 
