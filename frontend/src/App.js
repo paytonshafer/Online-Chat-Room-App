@@ -1,8 +1,10 @@
 import socketIO from 'socket.io-client';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './pages/login';
-import Home from './pages/home'
 import NavBar from './components/navbar';
+import Login from './pages/login';
+import Chat from './pages/chat'
+import Home from './pages/home'
+import Features from './pages/features';
 import { UserProvider } from './context/UserContext';
 
 const socket = socketIO.connect('http://localhost:8000');
@@ -16,7 +18,9 @@ function App() {
                     <NavBar/>
                     <Routes>
                         <Route path='/' element={<Login socket={socket}/>}></Route>
+                        <Route path='/chat' element={<Chat socket={socket}/>}></Route>
                         <Route path='/home' element={<Home socket={socket}/>}></Route>
+                        <Route path='/features' element={<Features socket={socket}/>}></Route>
                     </Routes>
                 </UserProvider>
             </Router>

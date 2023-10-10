@@ -2,10 +2,10 @@ import React from 'react';
 import { useUserContext } from '../context/UserContext'; // get username context
 
 // login page
-const Home = ({ socket }) => {
+const Features = ({ socket }) => {
     const { username } = useUserContext();
 
-    return(<h1>{username}'s home</h1>)
+    return(<h1>{username}'s features</h1>)
 }
 
-export default Home;
+export default Features;

@@ -53,7 +53,7 @@ const Login = ({ socket }) => {
                 } else {
                     setUsername(tempUsername); // set username in context
                     socket.emit("user_join", tempUsername); // send to server to broadcast that new user joined
-                    navigate('/home'); // send user to the homepage
+                    navigate('/chat'); // send user to the homepage
                     setUsernameTaken(false) // reset usernmaeTaken field
                 }
             })
