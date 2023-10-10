@@ -67,7 +67,7 @@ const Home = ({ socket }) => {
         return () => {
             // socket clean up if the username is null
             if(!username){
-                socket.disconnect();c
+                socket.disconnect()
             }
         }
     }, [username, navigate, socket])
