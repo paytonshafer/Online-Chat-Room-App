@@ -18,10 +18,11 @@ const Chat = ({ socket }) => {
     
     Feel free to use these commands to explore and interact with the chat room.<br />
     Happy chatting! 🚀`; // help message to be displayed to user
-    const { id, username, setUsername } = useUserContext(); // get username from user context, setUsername function to set username
+    const { id, username, setUsername, gmessages, setGMessages } = useUserContext(); // get username from user context, setUsername function to set username
     const messagesEndRef = useRef(null); // useRef to use as a ref to scroll to bottom of message buffer
     const [message, setMessage] = useState('') // message state of current message in input
-    const [messages, setMessages] = useState(["System: You have joined the chat as '" + username  + "'. Send /help for a list of commands."]) // message bufer with initial message
+    const [messages, setMessages] = useState(gmessages)
+    //const [messages, setMessages] = useState(["System: You have joined the chat as '" + username  + "'. Send /help for a list of commands."]) // message bufer with initial message
     const navigate = useNavigate(); // initailize naviagtor
 
     // use effect on initial load that sets listeners
@@ -52,13 +53,20 @@ const Chat = ({ socket }) => {
             addMessage(data.sender + " (direct message): " + data.message) //add message to buffer and not that it is a direct message
         })
 
-        return () => {
-            // socket clean up
-            //socket.disconnect();
+        //ensure that if there is no username you will be directed to login
+        if(!username){ // if username is null send to login
+            navigate('/')
         }
-    }, [socket])
 
-    // use effect to ensure that if there is no username you will be directed to login
+        return () => {
+            setGMessages(messages) // set global messages to messages when leave chat page
+            if(!username){ // when leaving chat page if no username, disconnect from socket
+                socket.disconnect()
+            }
+        }
+    }, [socket, navigate, setGMessages, messages, username])
+
+    /* use effect to ensure that if there is no username you will be directed to login
     useEffect(() => {
         if(!username){ // if username is null send to login
             navigate('/')
@@ -70,7 +78,7 @@ const Chat = ({ socket }) => {
                 socket.disconnect()
             }
         }
-    }, [username, navigate, socket])
+    }, [username, navigate, socket])*/
 
     // this is to ensure the newest message is visible once it is added to the screen
     useEffect(() => {
