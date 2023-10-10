@@ -11,32 +11,35 @@ MDBTabsPane,
 MDBBtn,
 //MDBIcon, not needed yet
 MDBInput,
-MDBCheckbox
+//MDBCheckbox, not needed yet
 }
-from 'mdb-react-ui-kit';
+from 'mdb-react-ui-kit'; // bootstrap react components
 
+// login page
 const Login = ({ socket }) => {
-
-    const [justifyActive, setJustifyActive] = useState('tab1');;
-    const [tempUsername, setTempUsername] = useState('')
+    const [justifyActive, setJustifyActive] = useState('tab1') // state for which tab is showing
+    const [tempUsername, setTempUsername] = useState('') // state for the username in the username feild
     const [usernameTaken, setUsernameTaken] = useState(false) // state for showing username taken message
     const navigate = useNavigate(); // initailize naviagtor
     const { setUsername } = useUserContext(); // get login function to set the username in the context
 
+    // styling for error message (for taken username)
     const error_style = {
         color: 'red',
-        'text-align': 'center'
+        textAlign: 'center'
     }
 
+    // function to handle switching between tabs
     const handleJustifyClick = (value) => {
-        if (value === justifyActive) {
+        if (value === justifyActive) { // if value is the active one then ignore
         return;
         }
 
-        setJustifyActive(value);
+        setJustifyActive(value); // set the new tab
     };
 
-    const handleSubmit = (e) => { // PICK UP HERE!!!
+    // function to handle login submition
+    const handleSubmit = (e) => {
         e.preventDefault(); // prevent default
 
         if(tempUsername.trim() === ""){ // ensure blank or just spaces as username cant be submitted
@@ -101,19 +104,22 @@ const Login = ({ socket }) => {
 
                 <p className="text-center mt-3">or:</p>
             </div>*/}
+            <form onSubmit={handleSubmit}>
+                <p style={error_style}>{usernameTaken ? "Username Taken Please Try Again" : ""}</p>  
+                <MDBInput wrapperClass='mb-4' label='Username' id='form1' type='text' value={tempUsername.trim()} onChange={(e) => setTempUsername(e.target.value)}/>
+                <MDBInput wrapperClass='mb-4' label='Password (Not needed yet, just enter a username to login)' id='form1' type='password' disabled/>
 
-            <p style={error_style}>{usernameTaken ? "Username Taken Please Try Again" : ""}</p>  
-            <MDBInput wrapperClass='mb-4' label='Username' id='form1' type='text' value={tempUsername.trim()} onChange={(e) => setTempUsername(e.target.value)}/>
-            <MDBInput wrapperClass='mb-4' label='Password (Not needed yet)' id='form2' type='password'/>
+                {/*
+                <div className="d-flex justify-content-between mx-4 mb-4">
+                    <MDBCheckbox name='flexCheck' value='' id='flexCheckDefault' label='Remember me' />
+                    <a href="!#">Forgot password?</a>
+                </div>
+                */}
 
-            <div className="d-flex justify-content-between mx-4 mb-4">
-                <MDBCheckbox name='flexCheck' value='' id='flexCheckDefault' label='Remember me' />
-                <a href="!#">Forgot password?</a>
-            </div>
-
-            <MDBBtn className="mb-4 w-100" type='submit' onClick={handleSubmit}>Sign in</MDBBtn>
-            <p className="text-center">Not a member? <a href="#!">Register</a></p>
-
+                <MDBBtn className="mb-4 w-100" type='submit' onClick={handleSubmit}>Sign in</MDBBtn>
+                {/*<p className="text-center">Not a member? <a href="#!">Register</a></p>*/}
+            </form>
+            
             </MDBTabsPane>
 
             {/*Sign up pane below*/}
@@ -144,17 +150,19 @@ const Login = ({ socket }) => {
                 <p className="text-center mt-3">or:</p>
             </div>*/}
 
-            <p>No need to sign up yet, please head to login page and enter a username to enter the chat-room</p>
-            <MDBInput wrapperClass='mb-4' label='Name' id='form1' type='text'/>
-            <MDBInput wrapperClass='mb-4' label='Username' id='form1' type='text'/>
-            <MDBInput wrapperClass='mb-4' label='Email' id='form1' type='email'/>
-            <MDBInput wrapperClass='mb-4' label='Password' id='form1' type='password'/>
+            <p>No need to sign up yet, please head to login page and enter a username to login</p>
+            <MDBInput wrapperClass='mb-4' label='Name' id='form1' type='text' disabled/>
+            <MDBInput wrapperClass='mb-4' label='Username' id='form1' type='text' disabled/>
+            <MDBInput wrapperClass='mb-4' label='Email' id='form1' type='email' disabled/>
+            <MDBInput wrapperClass='mb-4' label='Password' id='form1' type='password' disabled/>
 
+            {/*
             <div className='d-flex justify-content-center mb-4'>
                 <MDBCheckbox name='flexCheck' id='flexCheckDefault' label='I have read and agree to the terms' />
             </div>
+            */}
 
-            <MDBBtn className="mb-4 w-100">Sign up</MDBBtn>
+            <MDBBtn className="mb-4 w-100" onClick={() => handleJustifyClick('tab1')}>Sign up</MDBBtn>
 
             </MDBTabsPane>
 

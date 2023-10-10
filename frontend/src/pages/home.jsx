@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef  } from 'react';
 import { useUserContext } from '../context/UserContext'; // get user info through context
+import { MDBBtn, MDBInput, MDBCard, MDBCardHeader, MDBCardBody } from 'mdb-react-ui-kit'; 
 import './styles/home.css'
 
 // home page, for now this is where the chat is
 const Home = ({ socket }) => {
-    const helpMessage = `**Chat Room Help**<br /><br />
+    const helpMessage = `System: **Chat Room Help**<br /><br />
 
     Welcome to the chat room! Here are some available commands to enhance your chat experience:<br />
     Note: Some commands have parameters; just type the command and the parameters separated by spaces.<br /><br />
@@ -174,33 +175,43 @@ const Home = ({ socket }) => {
 
     return (
         <div>
-            <title>Real-time Chat App</title>
-            <meta
-                name="viewport"
-                content="width=device-width,minimum-scale=1,initial-scale=1"
-            />
-            <h1>Chat Room</h1>
-            <ul className="messages">
-                {messages.map((data, index) => (
+            <ul className="p-0 messages mb-8">
+                {/*messages.map((data, index) => (
                     <li key={index}>
                         <div dangerouslySetInnerHTML={{ __html: data }}></div>
                     </li>
+                ))*/}
+                {messages.map((data, index) => (
+                    data.split(': ')[0] === username ?
+                    <MDBCard key={index} background='primary' shadow='1' className='w-75 my-2 ms-3' style={{color: 'white'}}>
+                        <MDBCardHeader className='p-0 ps-2 py-2' >{data.split(': ')[0]}</MDBCardHeader>
+                        <MDBCardBody className='p-2'><div dangerouslySetInnerHTML={{ __html: data.split(': ').slice(1).join(' ') }}></div></MDBCardBody>
+                    </MDBCard> :
+                    <MDBCard key={index} background='secondary' shadow='1' className='w-75 my-2 ms-3' style={{color: 'white'}}>
+                        <MDBCardHeader className='p-0 ps-2 py-2' >{data.split(': ')[0]}</MDBCardHeader>
+                        <MDBCardBody className='p-2'><div dangerouslySetInnerHTML={{ __html: data.split(': ').slice(1).join(' ') }}></div></MDBCardBody>
+                    </MDBCard>
                 ))}
                 {/* Use the ref to scroll to the last message */}
                 <div ref={messagesEndRef}></div>
             </ul>
             <form onSubmit={handleSend}>
-                <input 
-                    type="text"
-                    placeholder="Write message"
-                    className="input"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                />
-                <button>Send</button>
+                <div className='fixed-bottom w-100 bg-white '>
+                <div className='d-flex flex-row py-3 mx-3'>
+                    <MDBInput 
+                        type="text"
+                        label="Write message"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                    />
+                    <MDBBtn className="ripple ripple-surface ripple-surface-light btn btn-primary w-25" type='submit' onClick={handleSend}>Send</MDBBtn>
+                </div>
+                </div>
             </form>
         </div>
     );
 }
+
+//<button class="ripple ripple-surface ripple-surface-light btn btn-primary mb-4 w-100" role="button" type="submit">Sign in</button>
 
 export default Home
