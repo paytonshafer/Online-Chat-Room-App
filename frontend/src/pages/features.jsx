@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
-import chat from './imgs/chat.jpg'
-import commands from './imgs/commands.jpg'
-import users from './imgs/users.jpg'
-import Footer from '../components/footer'
+import chat from './imgs/chat.jpg' //get img
+import commands from './imgs/commands.jpg' //get img
+import users from './imgs/users.jpg' //get img
+import Footer from '../components/footer' //get footer
 import { useUserContext } from '../context/UserContext'; // get username context
 import {
     MDBCard,
@@ -17,15 +17,9 @@ import {
     MDBAccordionItem
   } from 'mdb-react-ui-kit';
 
-/*
-Overall info and featues
-commands accordian
-*/
-
-
-// feature page
+// feature page, this page is purely content as of 10/11/23
 const Features = ({ socket }) => {
-    const { username } = useUserContext();
+    const { username } = useUserContext(); // get username to add some personalization
     const commandListRef = useRef(null); // useRef to go to command list
 
     return (

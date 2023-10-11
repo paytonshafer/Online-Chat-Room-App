@@ -1,7 +1,6 @@
 /*TODO:
 UI Upgrades;
     Home page - welcome username, eventually room selection, for now single room connection, show users in room
-    Feature page - add in command info
     Remove username of sender on sender screen
     Change in capitalization makes usernames different -> Payton vs payton, when check put all to lowercase
     Make system messages different color?
