@@ -5,19 +5,15 @@ import { MDBBtn, MDBInput, MDBCard, MDBCardHeader, MDBCardBody, MDBContainer, MD
 
 // chat page, for now this is where the chat is
 const Chat = ({ socket }) => {
-    const helpMessage = `System: **Chat Room Help**<br /><br />
-
-    Welcome to the chat room! Here are some available commands to enhance your chat experience:<br />
-    Note: Some commands have parameters; just type the command and the parameters separated by spaces.<br /><br />
+    const helpMessage = `System: Here are some available commands to enhance your chat experience:<br /><br />
     
-    /help: Display this help message, listing available commands.<br />
-    /users: List all connected users in the chat room.<br />
-    /clear: Clear all messages on your screen.<br />
-    /username new_username: Change your username to new_username, but username must still be unique.<br />
-    /direct other_user message: Send a direct message to only other_user. <br /><br />
+    <code>/help</code>: Display this help message, listing available commands.<br />
+    <code>/users</code>: List all connected users in the chat room.<br />
+    <code>/clear</code>: Clear all messages on your screen.<br />
+    <code>/username new_username</code>: Change your username to new_username.<br />
+    <code>/direct other_user message</code>: Send a direct message to only other_user.<br /><br />
     
-    Feel free to use these commands to explore and interact with the chat room.<br />
-    Happy chatting! 🚀`; // help message to be displayed to user
+    Head to the <strong>Features</strong> page for a detailed explanation and examples of each command.`; // help message to be displayed to user
     const { id, username, setUsername, gmessages, setGMessages } = useUserContext(); // get username from user context, setUsername function to set username
     const messagesEndRef = useRef(null); // useRef to use as a ref to scroll to bottom of message buffer
     const [message, setMessage] = useState('') // message state of current message in input

@@ -7,6 +7,7 @@ UI Upgrades;
     Make system messages different color?
     Push messages toward center? -> increase outer margin
     tool tips?
+    add time to messages? -> maybe as tool tip or with sender name
 env files for front and backend to hold port, weather run is dev or deploy, 
 Set up some way to clear out logs
 select what "room" to join -> set a room string and then socket.join(room), io.in(room).emit()
