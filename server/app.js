@@ -1,15 +1,18 @@
 /*TODO:
+Fri:
+    COMMIT AND PUSH
+    Create room functionality -> server has room list on create room send to server, get room list on login, refresh for roomlist
+    Finish up home page content
 UI Upgrades;
     Home page - welcome username, eventually room selection, for now single room connection, show users in room
     Remove username of sender on sender screen
     Change in capitalization makes usernames different -> Payton vs payton, when check put all to lowercase
     Make system messages different color?
     Push messages toward center? -> increase outer margin
-    tool tips?
+    tool tips? -> home page refresh buttons, disables nav stuff
     add time to messages? -> maybe as tool tip or with sender name
 env files for front and backend to hold port, weather run is dev or deploy, 
-Set up some way to clear out logs
-select what "room" to join -> set a room string and then socket.join(room), io.in(room).emit()
+Set up some way to clear out logs and update log messages to be more readable
 Integraete database to backend:
     choose db service and link up to backend
     store room history -> /history command to get history back
@@ -76,6 +79,8 @@ const logger = createLogger({
 
 // create a map to store the usernames and their respective socket
 const connectedClients = new Map()
+// create a map for socket to what room they are in
+const clientRooms = new Map()
 
 // Helper Functions
 // function to get the value of a map by the key, returns null if client isnt found
@@ -92,25 +97,42 @@ const getKeyByValue = (map, targetValue) => {
 // on connection event create these event listeners on the new socket
 io.on("connection", (socket) => {
     try {
-        // create an event for when user joins and add then to list and let all connected users know
+        // create an event for when user logs in and add user to map
         socket.on("user_join", (data) => { // data is the new username
             try {
                 if(data){ // unsure data is not null so only real users can be added
                         logger.info(data + ' joined (socket id: ' + socket.id + ')')
                         connectedClients.set(data, socket); // add new user and their socket to client list
-                        // call user_join event and send the bew users username
-                        socket.broadcast.emit("user_join", data);
                     }
             } catch (error) {
                 logger.error("User join error for " + socket.id + " (" + data + ") :", error)
             }
         });
 
+        // event for when the user joins a room, leave any current room and let new/old room know
+        socket.on('join_room', (data) => { // data has room and username
+            try {
+                if(clientRooms.has(socket)){ // user was in a room already
+                    logger.info(data.user + ' disconnected from room: ' + clientRooms.get(socket) + ' (socket id: ' + socket.id + ')')
+                    socket.to(clientRooms.get(socket)).emit("user_leave", data.user); // broadcast user left the old room
+                    socket.leave(clientRooms.get(socket)) // leave old room
+                    clientRooms.delete(socket) // remove from map
+                }
+                socket.join(data.room) // join new room
+                clientRooms.set(socket, data.room)// add to map
+                logger.info(data.user + ' joined room: ' + clientRooms.get(socket) + ' (socket id: ' + socket.id + ')')
+                socket.to(data.room).emit('user_join', data.user)  // let users in room know that they joined
+            } catch (error) {
+                logger.error("Join room error for " + socket.id + " (" + data.user + ") :", error)
+            }
+        })
+
         // create an event when you send a message to send message to all other users
         socket.on("chat_message", (data) => { // data is username of sender and message
             try {
+                logger.info("Chat message from " + data.sender + ' (socket id: ' + socket.id + ')')
                 // call chat_message event and send the message data (username of sender and message)
-                socket.broadcast.emit("chat_message", data);
+                socket.to(clientRooms.get(socket)).emit("chat_message", data);
             } catch (error) {
                 logger.error("Send chat message error for " + socket.id + " :", error)
             }
@@ -118,15 +140,17 @@ io.on("connection", (socket) => {
 
         // create an event for the user on disconnect to let all other user know they left
         socket.on("disconnect", () => {
-            try {            // get username from socket that left
-                gone_user = getKeyByValue(connectedClients, socket)
-                if(gone_user){
+            try {            
+                gone_user = getKeyByValue(connectedClients, socket) // get username from socket that left
+                if(gone_user){ // if they exist
                     // log that the user left
-                    logger.info(gone_user + ' left (socket id: ' + socket.id + ')')
+                    logger.info(gone_user + ' disconnected from server (socket id: ' + socket.id + ')')
                     // remove said user from the map
                     connectedClients.delete(gone_user)
                     // call user_leave event and send username of user who left
-                    socket.broadcast.emit("user_leave", gone_user);
+                    socket.to(clientRooms.get(socket)).emit("user_leave", gone_user);
+                    // remove the user from the room
+                    clientRooms.delete(socket)
                 }
             } catch (error) {
                 logger.error("Disconnect error for " + socket.id + " :", error)
@@ -136,8 +160,13 @@ io.on("connection", (socket) => {
 
         // event for requesting user list that can be used with a callback function
         socket.on('request_users', (data, callback) => {
-            // send username list back
-            callback([...connectedClients.keys()])
+            try{
+                logger.info("Request user list from: " + socket.id)
+                // send username list back
+                callback([...connectedClients.keys()])
+            } catch (error) {
+                logger.error("Request user list error for " + socket.id + " :", error)
+            }
         })
 
         // craete event for when someone wants to change their username they request here
@@ -145,7 +174,7 @@ io.on("connection", (socket) => {
             try{
                 connectedClients.delete(data.old) // delete old username
                 connectedClients.set(data.new, socket) // add new username
-                socket.broadcast.emit('other_name_change', data) // broadcast to all other users
+                socket.to(clientRooms.get(socket)).emit('other_name_change', data) // broadcast to all other users
                 logger.info(data.old + ' changed username to ' + data.new + ' (socket id: ' + socket.id + ')') // log that a user changed their name
             } catch (error) {
                 logger.error("Change username error for " + socket.id + " :", error)
@@ -157,8 +186,37 @@ io.on("connection", (socket) => {
             try {
                 receiver_socket = connectedClients.get(data.receiver) // get receiver socket
                 receiver_socket.emit("receive_direct_message", data) // send direct message to the socket
+                logger.info("Direct message from " + data.sender + " to " + data.receiver)
             } catch (error) {
                 logger.error("Send direct message error for " + socket.id + " :", error)
+            }
+        })
+
+        // event for when user requests the list of rooms and users in the rooms
+        socket.on('req_user_room_list', (data, callback) => {
+            try {
+                // create a map to store room data with the room as the key
+                const roomDataMap = new Map();
+
+                // iterate through the socke to room map
+                clientRooms.forEach((roomName, socket_inst) => {
+                    // get the username associated with the socket from usernameToSocket map
+                    const username = getKeyByValue(connectedClients, socket_inst)
+
+                    // if the roomName is already in the roomDataMap, push the username to the users array
+                    if (roomDataMap.has(roomName)) {
+                    roomDataMap.get(roomName).users.push(username);
+                    } else {
+                    // if the roomName is not in the roomDataMap, create a new room object
+                    roomDataMap.set(roomName, { room: roomName, users: [username] });
+                    }
+                });
+                
+                logger.info("Request user room list for " + socket.id)
+                // convert to a list of the room user objects and callback the data
+                callback([...roomDataMap.values()])
+            } catch (error) {
+                logger.error("Request user room list error for " + socket.id + " :", error)
             }
         })
     } catch (error) {

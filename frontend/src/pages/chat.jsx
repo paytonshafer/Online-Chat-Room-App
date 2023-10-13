@@ -14,11 +14,10 @@ const Chat = ({ socket }) => {
     <code>/direct other_user message</code>: Send a direct message to only other_user.<br /><br />
     
     Head to the <strong>Features</strong> page for a detailed explanation and examples of each command.`; // help message to be displayed to user
-    const { id, username, setUsername, gmessages, setGMessages } = useUserContext(); // get username from user context, setUsername function to set username
+    const { id, username, setUsername, gmessages, setGMessages, curRoom } = useUserContext(); // get username from user context, setUsername function to set username
     const messagesEndRef = useRef(null); // useRef to use as a ref to scroll to bottom of message buffer
     const [message, setMessage] = useState('') // message state of current message in input
     const [messages, setMessages] = useState(gmessages)
-    //const [messages, setMessages] = useState(["System: You have joined the chat as '" + username  + "'. Send /help for a list of commands."]) // message bufer with initial message
     const navigate = useNavigate(); // initailize naviagtor
 
     // use effect on initial load that sets listeners
@@ -31,12 +30,12 @@ const Chat = ({ socket }) => {
 
         // setting what happens when user_join is emitted
         socket.on("user_join", (data) => {
-            addMessage("System: " + data + " just joined the chat!"); // add new user message
+            addMessage("System: " + data + " just joined the room!"); // add new user message
         })
 
         // setting what happens when user_leave is emitted
         socket.on("user_leave", (data) => {
-            addMessage("System: " + data + " has left the chat."); // add user left message
+            addMessage("System: " + data + " has left the room."); // add user left message
         })
 
         // annouce that another user changed their username
@@ -49,20 +48,14 @@ const Chat = ({ socket }) => {
             addMessage(data.sender + " (direct message): " + data.message) //add message to buffer and not that it is a direct message
         })
 
-        //ensure that if there is no username you will be directed to login
-        if(!username){ // if username is null send to login
-            navigate('/')
-        }
+    }, [socket])
 
-        return () => {
-            setGMessages(messages) // set global messages to messages when leave chat page
-            if(!username){ // when leaving chat page if no username, disconnect from socket
-                socket.disconnect()
-            }
-        }
-    }, [socket, navigate, setGMessages, messages, username])
+    // use effect to set global messages when messages update
+    useEffect( () => {
+        setGMessages(messages) // set global messages to messages when leave chat page
+    }, [messages, setGMessages])
 
-    /* use effect to ensure that if there is no username you will be directed to login
+    // use effect to ensure that if there is no username you will be directed to login
     useEffect(() => {
         if(!username){ // if username is null send to login
             navigate('/')
@@ -74,7 +67,7 @@ const Chat = ({ socket }) => {
                 socket.disconnect()
             }
         }
-    }, [username, navigate, socket])*/
+    }, [username, navigate, socket])
 
     // this is to ensure the newest message is visible once it is added to the screen
     useEffect(() => {
@@ -104,18 +97,22 @@ const Chat = ({ socket }) => {
                 break
             case "users":
                 // get user list and print it out in message buffer
-                socket.emit("request_users", {}, (userList) => {
-                    let users = "System: The current users connected are: "
-                    userList.forEach((user) => {
-                        users = user === username ? users + username + " (you), " : users + user + ", " // this adds (you) next to user that requested it
-                        //users = user == username ? users : users + user + ", " // this line makes it so the user who requested it doesnt show up
+                socket.emit("req_user_room_list", {}, (userRoomList) => {
+                    let users = "System: The current users in " + curRoom + " are: "
+                    userRoomList.forEach((room) => {
+                        if(room.room === curRoom){
+                            room.users.forEach((user) => {
+                                users = user === username ? users + username + " (you), " : users + user + ", " // this adds (you) next to user that requested it
+                                //users = user == username ? users : users + user + ", " // this line makes it so the user who requested it doesnt show up
+                            })
+                        }
                     })
                     addMessage(users.replace(/, $/, ''))
                 })
                 break
             case "clear":
                 setMessages([]) // clear buffer
-                addMessage("System: You are in the chat as '" + username  + "'. Use /help for help and a list of commands."); // add at top so they know how to get help and current username
+                addMessage("System: You are in the room: " + curRoom + " as '" + username  + "'. Use /help for help and a list of commands."); // add at top so they know how to get help and current username
                 break
             case "username":
                 // set new username

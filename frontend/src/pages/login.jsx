@@ -21,7 +21,7 @@ const Login = ({ socket }) => {
     const [tempUsername, setTempUsername] = useState('') // state for the username in the username feild
     const [usernameTaken, setUsernameTaken] = useState(false) // state for showing username taken message
     const navigate = useNavigate(); // initailize naviagtor
-    const { setUsername, setGMessages } = useUserContext(); // get login function to set the username in the context
+    const { setUsername, setUserRoomList } = useUserContext(); // get functions to set username, messages and userRooomList
 
     // styling for error message (for taken username)
     const error_style = {
@@ -52,7 +52,9 @@ const Login = ({ socket }) => {
                     setTempUsername("") // set username to blank (also clears input box)
                 } else {
                     setUsername(tempUsername); // set username in context
-                    setGMessages(["System: You have joined the chat as '" + tempUsername  + "'. Send /help for a list of commands."]) // add initial chat message
+                    socket.emit('req_user_room_list', {}, (data) => { // get user room list info
+                        setUserRoomList(data)
+                    })
                     socket.emit("user_join", tempUsername); // send to server to broadcast that new user joined
                     navigate('/home'); // send user to the homepage
                     setUsernameTaken(false) // reset usernmaeTaken field
