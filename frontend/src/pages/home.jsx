@@ -14,7 +14,8 @@ import {
     MDBTabsContent,
     MDBTabsPane,
     MDBBtn,
-    MDBInput
+    MDBInput,
+    MDBTooltip
   } from 'mdb-react-ui-kit';
 /*
 Rethink where refresh button is
@@ -151,7 +152,7 @@ const Home = ({ socket }) => {
             <MDBCard className='text-center m-5'>
                 <MDBCardHeader className='pb-1'>
                     <strong>Explore Existing Rooms or Create a New One</strong>
-                    <MDBBtn className='position-absolute top-0 end-0 me-2 mt-2 mb-2 py-1 px-2' onClick={handleRefresh}><i className="fas fa-rotate"></i></MDBBtn>
+                    {/*<MDBBtn className='position-absolute top-0 end-0 me-2 mt-2 mb-2 py-1 px-2' onClick={handleRefresh}><i className="fas fa-rotate"></i></MDBBtn>*/}
                 </MDBCardHeader>
                 <div className='d-flex flex-row justify-content-around'>
                     <MDBCardBody className='d-flex flex-column align-items-center'>
@@ -181,11 +182,16 @@ const Home = ({ socket }) => {
                     </MDBCardBody>
                 </div>
             </MDBCard>
-            <MDBCard className='text-center m-5'>
+
+            <MDBCard className='text-center m-5'>   
                 <MDBCardHeader className='pb-1'>
                     <strong>Chat Room Users</strong>
-                    <MDBBtn className='position-absolute top-0 end-0 me-2 mt-2 mb-2 py-1 px-2' onClick={handleRefresh}><i className="fas fa-rotate"></i></MDBBtn>
-                </MDBCardHeader>
+                    <div className='position-absolute top-0 end-0'>
+                        <MDBTooltip className='pt-0 text-nowrap' tag='span' placement='left' title='Press to Refresh User Table'>
+                            <MDBBtn className='me-2 mt-2 mb-2 py-1 px-2' onClick={handleRefresh}><i className="fas fa-rotate"></i></MDBBtn>
+                        </MDBTooltip>
+                    </div>
+                    </MDBCardHeader>
                 <MDBCardBody className='p-0 m-2'>
                     <MDBTabs justify className='mb-3'>
                         {userRoomList.map((data, index) => {

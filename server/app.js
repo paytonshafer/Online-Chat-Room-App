@@ -1,15 +1,12 @@
 /*TODO:
 Fri:
-    COMMIT AND PUSH
     Create room functionality -> server has room list on create room send to server, get room list on login, refresh for roomlist
     Finish up home page content
-UI Upgrades;
-    Home page - welcome username, eventually room selection, for now single room connection, show users in room
+UI Upgrades:
     Remove username of sender on sender screen
     Change in capitalization makes usernames different -> Payton vs payton, when check put all to lowercase
-    Make system messages different color?
+    Make system messages different color? Green?
     Push messages toward center? -> increase outer margin
-    tool tips? -> home page refresh buttons, disables nav stuff
     add time to messages? -> maybe as tool tip or with sender name
 env files for front and backend to hold port, weather run is dev or deploy, 
 Set up some way to clear out logs and update log messages to be more readable

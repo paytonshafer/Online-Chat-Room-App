@@ -10,7 +10,8 @@ MDBNavbarNav,
 MDBNavbarLink,
 MDBIcon,
 MDBCollapse,
-MDBBtn
+MDBBtn,
+MDBTooltip
 } from 'mdb-react-ui-kit';
 
 const NavBar = () => {
@@ -49,30 +50,33 @@ const NavBar = () => {
             <MDBIcon icon='bars' fas />
             </MDBNavbarToggler>
             <MDBCollapse navbar show={showNav}>
-            <MDBNavbarNav className='ms-1'>
-                {username 
-                ? activePage === 'home' 
-                    ? <MDBNavbarLink active>Home</MDBNavbarLink> 
-                    : <MDBNavbarLink onClick={goHome}>Home</MDBNavbarLink> 
-                : <MDBNavbarLink disabled >Home</MDBNavbarLink>}
-                {username 
-                ? !curRoom
-                    ? <MDBNavbarLink disabled>Chat {/* add tool tip that says select a room */}</MDBNavbarLink>
-                    : activePage === 'chat' 
-                        ? <MDBNavbarLink active>Chat</MDBNavbarLink> 
-                        : <MDBNavbarLink onClick={goChat}>Chat</MDBNavbarLink> 
-                : <MDBNavbarLink disabled>Chat</MDBNavbarLink>}
-
-                {username 
-                ? activePage === 'features' 
-                    ? <MDBNavbarLink active>Features</MDBNavbarLink> 
-                    : <MDBNavbarLink onClick={goFeatures}>Features</MDBNavbarLink> 
-                : <MDBNavbarLink disabled>Features</MDBNavbarLink>}
-            </MDBNavbarNav>
             {username
-                ? <span className='navbar-text text-nowrap px-3'>{curRoom ? curRoom : 'Join a Room!'}</span>
+                ? <MDBNavbarNav className='ms-1'>
+                    {activePage === 'home' 
+                        ? <MDBNavbarLink active>Home</MDBNavbarLink> 
+                        : <MDBNavbarLink onClick={goHome}>Home</MDBNavbarLink>}
+                    {!curRoom
+                        ? <MDBTooltip placement='bottom' tag='span' title='Join a Room to Unlock'><MDBNavbarLink disabled>Chat</MDBNavbarLink></MDBTooltip>
+                        : activePage === 'chat' 
+                            ? <MDBNavbarLink active>Chat</MDBNavbarLink> 
+                            : <MDBNavbarLink onClick={goChat}>Chat</MDBNavbarLink>}
+                    {activePage === 'features' 
+                        ? <MDBNavbarLink active>Features</MDBNavbarLink> 
+                        : <MDBNavbarLink onClick={goFeatures}>Features</MDBNavbarLink> }
+                </MDBNavbarNav>
+                : <MDBNavbarNav className='ms-1'>
+                    <MDBTooltip tag='span' title='Login to Unlock'>
+                        <div className='d-flex flex-row'>
+                            <MDBNavbarLink disabled >Home</MDBNavbarLink>
+                            <MDBNavbarLink disabled>Chat</MDBNavbarLink>
+                            <MDBNavbarLink disabled>Features</MDBNavbarLink>
+                        </div>
+                    </MDBTooltip>
+                </MDBNavbarNav>}
+            {username
+                ? <span className='navbar-text text-nowrap px-3'>{curRoom ? curRoom : <MDBTooltip placement='left' tag='span' title='Once you join a room from the home page, it will show up here.'>Join a Room!</MDBTooltip>}</span>
                 : null}
-            {username ? <MDBBtn outline color='danger' size='sm' type='button' className='me-3' href='/'>EXIT</MDBBtn> : null}
+            {username ? <MDBBtn outline color='danger' size='sm' type='button' className='me-3' style={{paddingRight:'18px'}} href='/'>EXIT</MDBBtn> : null}
             </MDBCollapse>
         </MDBContainer>
         </MDBNavbar>
