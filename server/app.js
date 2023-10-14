@@ -1,7 +1,7 @@
 /*TODO:
-Fri:
-    Create room functionality -> server has room list on create room send to server, get room list on login, refresh for roomlist
+Sat:
     Finish up home page content
+    Finish user room list UI
 UI Upgrades:
     Remove username of sender on sender screen
     Change in capitalization makes usernames different -> Payton vs payton, when check put all to lowercase
@@ -9,7 +9,7 @@ UI Upgrades:
     Push messages toward center? -> increase outer margin
     add time to messages? -> maybe as tool tip or with sender name
 env files for front and backend to hold port, weather run is dev or deploy, 
-Set up some way to clear out logs and update log messages to be more readable
+Set up some way to clear out logs and update log messages to be more readable and add all logs
 Integraete database to backend:
     choose db service and link up to backend
     store room history -> /history command to get history back
@@ -78,6 +78,8 @@ const logger = createLogger({
 const connectedClients = new Map()
 // create a map for socket to what room they are in
 const clientRooms = new Map()
+// list of rooms
+const rooms = ['default_room']
 
 // Helper Functions
 // function to get the value of a map by the key, returns null if client isnt found
@@ -216,6 +218,18 @@ io.on("connection", (socket) => {
                 logger.error("Request user room list error for " + socket.id + " :", error)
             }
         })
+
+        // for what another user creates a room
+        socket.on('create_room', (data) => {
+            rooms.push(data.room) // add new room to list
+            socket.broadcast.emit('new_room', data.room) // let other users know ab new room
+        })
+
+        // when user needs room list -> only on login as of now
+        socket.on('req_rooms', (data, callback) => {
+            callback(rooms) // send room list
+        })
+
     } catch (error) {
         logger.error("Connection setup error:", error);
     }

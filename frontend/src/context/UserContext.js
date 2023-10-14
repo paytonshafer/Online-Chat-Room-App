@@ -13,10 +13,11 @@ export function UserProvider({ children }) {
 	const [curRoom, setCurRoom] = useState(null) // current room you are in
 	const [gmessages, setGMessages] = useState([]) // message bufer
 	const [userRoomList, setUserRoomList] = useState([]) // list of objects of form: {room: "name", users: [list of usernames]}
+	const [gRooms, setGRooms] = useState([]) // global rooms to join
   	const [id, ] = useState(nanoid(10)) // create unique id for user -> use in homepage for determining messages (10 chars)
 
 	return (
-		<UserContext.Provider value={{ id, username, setUsername, gmessages, setGMessages, userRoomList, setUserRoomList, curRoom, setCurRoom }}>
+		<UserContext.Provider value={{ id, username, setUsername, gmessages, setGMessages, userRoomList, setUserRoomList, curRoom, setCurRoom, gRooms, setGRooms }}>
 			{children}
 		</UserContext.Provider>
 	);

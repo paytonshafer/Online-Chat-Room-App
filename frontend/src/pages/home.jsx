@@ -16,7 +16,9 @@ import {
     MDBBtn,
     MDBInput,
     MDBTooltip
-  } from 'mdb-react-ui-kit';
+} from 'mdb-react-ui-kit';
+import { toast, ToastContainer } from 'react-toastify'; // toast messages
+import "react-toastify/dist/ReactToastify.css";
 /*
 Rethink where refresh button is
 
@@ -32,12 +34,14 @@ Show who is in what room in a card with tabs for each room
 
 // home page
 const Home = ({ socket }) => {
-    const { username, userRoomList, setUserRoomList, curRoom, setCurRoom, setGMessages, gmessages } = useUserContext();
+    const { username, userRoomList, setUserRoomList, curRoom, setCurRoom, setGMessages, gmessages, gRooms, setGRooms } = useUserContext();
     const [justifyActive, setJustifyActive] = useState('tab1') // state for which tab is showing
     const [usersActive, setUsersActive] = useState('tab1') // state for which tab is showing
-    const [roomSelector, setRoomSelector] = useState('') // room seletor var
+    const [roomSelector, setRoomSelector] = useState() // room seletor var
     const [newRoom, setNewRoom] = useState('') // for new room creation
     const [messages, setMessages] = useState(gmessages) // message buffer for messages when not in chat window
+    const [rooms, setRooms] = useState(gRooms) // list of rooms to join
+    const [joinError, setJoinError] = useState(false) // join error if try to join room they are in
 
     // use effect on initial load that sets listeners
     useEffect(() => {
@@ -54,7 +58,7 @@ const Home = ({ socket }) => {
 
         // setting what happens when user_leave is emitted
         socket.on("user_leave", (data) => {
-            addMessage("System: " + data + " has left the room."); // add user left messag
+            addMessage("System: " + data + " has left the room."); // add user left message
         })
 
         // annouce that another user changed their username
@@ -65,6 +69,31 @@ const Home = ({ socket }) => {
         // when we receive a direct message
         socket.on('receive_direct_message', (data) => {
             addMessage(data.sender + " (direct message): " + data.message) //add message to buffer and not that it is a direct message
+            toast(`${data.sender} (direct message): ${data.message}`, {
+                position: "bottom-left",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+        })
+
+        // when a new room is made by another
+        socket.on('new_room', (data) => {
+            addRoom(data)
+            toast(`New Room called '${data}' Created`, {
+                position: "bottom-left",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
         })
         
     }, [socket])
@@ -73,6 +102,16 @@ const Home = ({ socket }) => {
     useEffect( () => {
         setGMessages(messages) // set global messages to messages when leave chat page
     }, [messages, setGMessages])
+
+    // use effect to set global rooms when new room added
+    useEffect( () => {
+        setGRooms(rooms)
+    }, [rooms, setGRooms])
+
+    // function to add new room to list
+    const addRoom = (data) => {
+        setRooms((prev) => [...prev, data])
+    }
 
     // add message function to add new message to the buffer
     const addMessage = (data) => {
@@ -105,11 +144,72 @@ const Home = ({ socket }) => {
     }
 
     // function to join a room
-    const joinRoom = () => {
-        setCurRoom(roomSelector) // set current room to one in selector
-        setMessages(["System: You have joined room: " + roomSelector + " as '" + username  + "'. Send /help for a list of commands."]) // add initial chat message and clear out any messages from an old room
-        socket.emit('join_room', {user: username, room: roomSelector}) // emit to server that you joined that room
-        // add little pop up that says entered room_name head to chat page to chat
+    const joinRoom = (e) => {
+        e.preventDefault()
+        if(roomSelector && roomSelector !== curRoom){
+            setCurRoom(roomSelector) // set current room to one in selector
+            setMessages(["System: You have joined room: " + roomSelector + " as '" + username  + "'. Send /help for a list of commands."]) // add initial chat message and clear out any messages from an old room
+            socket.emit('join_room', {user: username, room: roomSelector}) // emit to server that you joined that room
+            toast.success(`Joined '${roomSelector}', Go Chat!`, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            })
+            setJoinError(false)
+        }
+        if(roomSelector === curRoom ){
+            setJoinError(true) // show join error
+        }
+    }
+
+    // function to create room
+    const createRoom = (e) => {
+        e.preventDefault()
+        if(newRoom.trim() !== ''){ // if the room is not empty
+            if(!rooms.includes(newRoom.trim())){ // if the room is not already a room
+                socket.emit('create_room', {room: newRoom}) // let other know about new room
+                setRooms((prev) => [...prev, newRoom]) // update your rooms
+                toast.success(`New Room: '${newRoom}' created`, { // pop up for new room success
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                })
+                setNewRoom('')
+            } else { // tried to create room that exists
+                toast.warning(`'${newRoom}' is already a room`, {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                })
+                setNewRoom('')
+            }
+        } else { // pressed with out entering room name
+            toast.error('Please enter a valid room name', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            })
+        }
     }
 
     return(
@@ -156,14 +256,14 @@ const Home = ({ socket }) => {
                 </MDBCardHeader>
                 <div className='d-flex flex-row justify-content-around'>
                     <MDBCardBody className='d-flex flex-column align-items-center'>
-                        <MDBCardTitle>Room Selection <div className='fs-6 fw-light'>{curRoom ? `Current Room: ${curRoom}` : 'Join a Room Below!' }</div></MDBCardTitle>
+                        <MDBCardTitle>Room Selection <div className='fs-6 fw-light' style={joinError ? {color: 'red'} : null}>{curRoom ? `Current Room: ${curRoom}` : 'Join a Room Below!' }</div></MDBCardTitle>
                         <MDBCardText >
                             Choose an existing chat room from the list below to join a conversation with other users.
                         </MDBCardText>
                         <MDBCard className='w-40'>
                             <MDBCardBody className='d-flex flex-row justify-content-center'>
                                 <div style={{width: '20rem'}}>
-                                    <Select className='m-4' menuPlacement="auto" menuPosition="fixed" options={[{value: 'room1', label: 'room1'}, {value: 'room2', label: 'room2'}]/*userRoomList.map((data) => {return {value: data.room, label: data.room}})*/} onChange={(e) => {setRoomSelector(e.value)}}/>
+                                    <Select className='m-4' menuPlacement="auto" menuPosition="fixed" options={rooms.filter((value, index, array) => array.indexOf(value) === index).map((data) => {return {value: data, label: data}})} onChange={(e) => {setRoomSelector(e.value)}}/>
                                 </div>
                                 <MDBBtn className='m-4' onClick={joinRoom}>Join Room</MDBBtn>
                             </MDBCardBody>
@@ -176,7 +276,7 @@ const Home = ({ socket }) => {
                         <MDBCard className='w-75'>
                             <MDBCardBody >
                                 <MDBInput value={newRoom.trim()} onChange={(e) => setNewRoom(e.target.value)} label='Enter a New Room Name' id='room' type='text'/>
-                                <MDBBtn className='mt-2' onClick={() => {console.log(newRoom)}}>Create Room</MDBBtn>
+                                <MDBBtn className='mt-2' onClick={createRoom}>Create Room</MDBBtn>
                             </MDBCardBody>
                         </MDBCard>
                     </MDBCardBody>
@@ -216,6 +316,7 @@ const Home = ({ socket }) => {
                 </MDBCardBody>
             </MDBCard>
             <Footer />
+            <ToastContainer/>
         </div>   
     )
 }
