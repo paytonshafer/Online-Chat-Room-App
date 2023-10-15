@@ -15,7 +15,7 @@ function App() {
         <div className="bg-white">
             <Router>
                 <UserProvider>
-                    <NavBar/>
+                    <NavBar socket={socket}/>
                     <Routes>
                         <Route path='/' element={<Login socket={socket}/>}></Route>
                         <Route path='/chat' element={<Chat socket={socket}/>}></Route>
