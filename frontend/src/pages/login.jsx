@@ -9,11 +9,15 @@ MDBTabsLink,
 MDBTabsContent,
 MDBTabsPane,
 MDBBtn,
+MDBTooltip,
+MDBIcon,
 //MDBIcon, not needed yet
 MDBInput,
 //MDBCheckbox, not needed yet
 }
 from 'mdb-react-ui-kit'; // bootstrap react components
+import { toast, ToastContainer } from 'react-toastify'; // toast messages
+import "react-toastify/dist/ReactToastify.css";
 
 // login page
 const Login = ({ socket }) => {
@@ -47,9 +51,19 @@ const Login = ({ socket }) => {
         } else {
             socket.emit('request_users', {}, (userList) => {
                 // check if username is already taken
-                if(userList.includes(tempUsername)){
-                    setUsernameTaken(true) // show taken message
+                if(userList.map((str) => str.toLowerCase()).includes(tempUsername.toLowerCase())){
+                    //setUsernameTaken(true) // show taken message No need to show anymore bc we added the taosts
                     setTempUsername("") // set username to blank (also clears input box)
+                    toast.error('Username Taken, Try Again.', {
+                        position: "top-right",
+                        autoClose: 3000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "light",
+                    })
                 } else {
                     setUsername(tempUsername); // set username in context
                     socket.emit('req_user_room_list', {}, (data) => { // get user room list info
@@ -112,7 +126,9 @@ const Login = ({ socket }) => {
             </div>*/}
             <form onSubmit={handleSubmit}>
                 <p style={error_style}>{usernameTaken ? "Username Taken Please Try Again" : ""}</p>  
-                <MDBInput wrapperClass='mb-4' label='Username' id='form1' type='text' value={tempUsername.trim()} onChange={(e) => setTempUsername(e.target.value)}/>
+                <MDBTooltip className='pt-0 mt-0' placement='right' tag='span' title={<p>Username Requirements<br/> <MDBIcon fas icon="greater-than-equal" /> 1 Character Long<br/>No Spaces<br/>Dont' Be Too Silly <MDBIcon far icon="grin-wink" /></p>}>
+                    <MDBInput wrapperClass='mb-4' label='Username' id='form1' type='text' value={tempUsername.trim()} onChange={(e) => setTempUsername(e.target.value)}/>
+                </MDBTooltip>
                 <MDBInput wrapperClass='mb-4' label='Password (Not needed yet, just enter a username to login)' id='form1' type='password' disabled/>
 
                 {/*
@@ -174,6 +190,7 @@ const Login = ({ socket }) => {
 
         </MDBTabsContent>
 
+        <ToastContainer/>
         </MDBContainer>
     );
 }
