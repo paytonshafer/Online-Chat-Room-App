@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Footer from '../components/footer'
+import MoreTab from '../components/home/more_tab';
+import HowToTab from '../components/home/how_to_tab';
+import WelcomeTab from '../components/home/welcome_tab';
 import { useUserContext } from '../context/UserContext'; // get username context
 import Select from 'react-select' // select object for room selecttion
 import {
@@ -234,16 +237,16 @@ const Home = ({ socket }) => {
                     </MDBTabsItem>
                     </MDBTabs>
                 </MDBCardHeader>
-                <MDBCardBody>
+                <MDBCardBody className='p-0'>
                     <MDBTabsContent>
                         <MDBTabsPane show={justifyActive === 'tab1'}>
-                            <MDBCardTitle>Welcome {username}</MDBCardTitle>
+                            <WelcomeTab />
                         </MDBTabsPane>
                         <MDBTabsPane show={justifyActive === 'tab2'}>
-                            <MDBCardTitle>Tell {username} how to chat</MDBCardTitle>
+                           <HowToTab />
                         </MDBTabsPane>
-                        <MDBTabsPane show={justifyActive === 'tab3'}>
-                            <MDBCardTitle>More info for {username}</MDBCardTitle>
+                        <MDBTabsPane show={justifyActive === 'tab3'} style={{marginBottom: '2px', marginTop: '2px'}}>
+                            <MoreTab />
                         </MDBTabsPane>
                     </MDBTabsContent>
                 </MDBCardBody>
@@ -306,11 +309,17 @@ const Home = ({ socket }) => {
                     </MDBTabs>
 
                     <MDBTabsContent>
-                        {userRoomList.map((data, index) => {
-                            return <MDBTabsPane key={index} show={usersActive === 'tab' + index}>
-                                {/* style user list */}
-                                {data.users.map((user, userIndex) => {return <p key={userIndex}>{user}</p>})}
-                            </MDBTabsPane>
+                        {userRoomList.map((data, index) =>{
+                           return (
+                                <MDBTabsPane key={index} show={usersActive === 'tab' + index}>
+                                    <ul className="list-group room-list">
+                                        <li className="list-group-item list-group-item-dark">Users {data.room}</li>
+                                        {data.users.map((user, userIndex) => {
+                                         return <li className="list-group-item" key={userIndex}>
+                                            {user}
+                                        </li>})}
+                                    </ul>
+                                </MDBTabsPane>)
                         })}
                     </MDBTabsContent>
                 </MDBCardBody>
