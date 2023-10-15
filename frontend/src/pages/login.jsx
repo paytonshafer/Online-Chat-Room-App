@@ -54,7 +54,7 @@ const Login = ({ socket }) => {
                 if(userList.map((str) => str.toLowerCase()).includes(tempUsername.toLowerCase())){
                     //setUsernameTaken(true) // show taken message No need to show anymore bc we added the taosts
                     setTempUsername("") // set username to blank (also clears input box)
-                    toast.error('Username Taken, Try Again.', {
+                    toast.error('Username Taken, Try Again.', { // error message for if usernaem taken
                         position: "top-right",
                         autoClose: 3000,
                         hideProgressBar: false,
