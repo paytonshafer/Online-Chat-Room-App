@@ -313,7 +313,7 @@ const Home = ({ socket }) => {
                            return (
                                 <MDBTabsPane key={index} show={usersActive === 'tab' + index}>
                                     <ul className="list-group room-list">
-                                        <li className="list-group-item list-group-item-dark">Users {data.room}</li>
+                                        <li className="list-group-item list-group-item-dark">Users in {data.room}</li>
                                         {data.users.map((user, userIndex) => {
                                          return <li className="list-group-item" key={userIndex}>
                                             {user}
