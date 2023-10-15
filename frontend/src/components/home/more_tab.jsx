@@ -16,9 +16,9 @@ const MoreTab = () => {
             <MDBCol>
             <MDBCard>
                 <MDBCardBody>
-                <MDBCardTitle>Source Code <i class="far fa-file-code"></i></MDBCardTitle>
+                <MDBCardTitle>Source Code <i className="far fa-file-code"></i></MDBCardTitle>
                 <MDBCardText className='py-0'>
-                    You can explore the source code of our chat room application on GitHub. Access the repository to view <i class="fas fa-folder-tree"></i>, contribute <i class="fas fa-code-pull-request"></i>, or even fork <i class="fas fa-code-fork"></i> the code. Your contributions and insights are welcome!
+                    You can explore the source code of our chat room application on GitHub. Access the repository to view <i className="fas fa-folder-tree"></i>, contribute <i className="fas fa-code-pull-request"></i>, or even fork <i className="fas fa-code-fork"></i> the code. Your contributions and insights are welcome!
                 </MDBCardText>
                 <a
                     href="https://github.com/paytonshafer/Online-Chat-Room-App"
@@ -26,7 +26,7 @@ const MoreTab = () => {
                     rel="noopener noreferrer"
                     className="btn btn-primary"
                 >
-                    Visit our GitHub Repository <i class="fab fa-github"></i>
+                    Visit our GitHub Repository <i className="fab fa-github"></i>
                 </a>
                 </MDBCardBody>
             </MDBCard>
@@ -35,9 +35,9 @@ const MoreTab = () => {
             <MDBCol>
             <MDBCard>
                 <MDBCardBody>
-                <MDBCardTitle>Project Documentation <i class="fas fa-book"></i></MDBCardTitle>
+                <MDBCardTitle>Project Documentation <i className="fas fa-book"></i></MDBCardTitle>
                 <MDBCardText>
-                    If you're looking for detailed documentation or guides on how to use and contribute to our chat room application, you'll find it here. Get started with comprehensive instructions. <i class="fas fa-book-open-reader"></i>
+                    If you're looking for detailed documentation or guides on how to use and contribute to our chat room application, you'll find it here. Get started with comprehensive instructions. <i className="fas fa-book-open-reader"></i>
                 </MDBCardText>
                 <a href="/documentation" className="btn btn-primary disabled">
                     Explore Project Documentation

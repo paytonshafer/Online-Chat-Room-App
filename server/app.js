@@ -1,10 +1,6 @@
 /*TODO:
 UI Upgrades:
-    Remove username of sender on sender screen
     Change in capitalization makes usernames different -> Payton vs payton, when check put all to lowercase
-    Make system messages different color? Green?
-    Push messages toward center? -> increase outer margin
-    add time to messages? -> maybe as tool tip or with sender name
 env files for front and backend to hold port, weather run is dev or deploy, 
 Set up some way to clear out logs and update log messages to be more readable and add all logs
 Integraete database to backend:

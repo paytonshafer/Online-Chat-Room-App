@@ -196,10 +196,10 @@ const Chat = ({ socket }) => {
                 {messages.map((data, index) => (
                     data.split(': ')[0].includes(id) // if the message is sent by the current user diff style
                     ?
-                    <MDBRow end key={index} style={{marginLeft: '20rem'}}>
+                    <MDBRow end key={index} style={{marginLeft: '20rem', marginRight: '1rem'}}> {/* Increase marginRight to close middle gap */}
                         <MDBCol md='auto' className='m-0'>
                             <MDBCard background='primary' shadow='1' className='my-1' style={{color: 'white'}}>
-                                <MDBCardHeader className='p-0 p-2 text-end fw-bold' >{data.split(': ')[0].slice(10)}</MDBCardHeader>
+                                {/*<MDBCardHeader className='p-0 p-2 text-end fw-bold' >{data.split(': ')[0].slice(10)}</MDBCardHeader> Don't need your own username*/}
                                 {username.length >=  data.split(': ').slice(1).join(': ').length 
                                 ? <MDBCardBody className='p-2 text-end'><div dangerouslySetInnerHTML={{ __html: data.split(': ').slice(1).join(': ') }}></div></MDBCardBody> 
                                 : <MDBCardBody className='p-2'><div dangerouslySetInnerHTML={{ __html: data.split(': ').slice(1).join(': ') }}></div></MDBCardBody>}
@@ -207,9 +207,9 @@ const Chat = ({ socket }) => {
                         </MDBCol>
                     </MDBRow> 
                     :
-                    <MDBRow start key={index} style={{marginRight: '20rem'}}>
+                    <MDBRow start key={index} style={{marginRight: '20rem', marginLeft: '1rem'}}> {/* Increase marginLeft to close middle gap */}
                     <MDBCol md='auto' className='m-0'>
-                            <MDBCard background='secondary' shadow='1' className=' my-1' style={{color: 'white'}}>
+                            <MDBCard background={data.split(': ')[0] === 'System' ? 'secondary' : 'info'} shadow='1' className=' my-1' style={{color: 'white'}}>
                                 <MDBCardHeader className='p-0 p-2 fw-bold' >{data.split(': ')[0]}</MDBCardHeader>
                                 <MDBCardBody className='p-2'><div dangerouslySetInnerHTML={{ __html: data.split(': ').slice(1).join(': ') }}></div></MDBCardBody>
                             </MDBCard>
