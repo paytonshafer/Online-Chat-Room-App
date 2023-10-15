@@ -121,13 +121,13 @@ const Chat = ({ socket }) => {
                     addMessage('System: You did not enter a new username. Please try again.')
                     break
                 }
-                if(new_username === username){ // check if username is same as old
+                if(new_username.toLowerCase() === username.toLowerCase()){ // check if username is same as old
                     addMessage('System: The username you entered is your current username. Please try again with a new username.')
                     break
                 }
                 // if not ask server for list of connected users
                 socket.emit("request_users", {}, (userList) => {
-                    if(userList.includes(new_username)){ // if the requested new username is taken
+                    if(userList.map((str) => str.toLowerCase()).includes(new_username.toLowerCase())){ // if the requested new username is taken
                         let unavailable = "The current users connected are: "
                         userList.forEach((user) => { // format user list and add (current) next to their name
                             unavailable = user === username ? unavailable + username + " (current), " : unavailable + user + ", "
