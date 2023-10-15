@@ -1,7 +1,4 @@
 /*TODO:
-Sat:
-    Finish up home page content
-    Finish user room list UI
 UI Upgrades:
     Remove username of sender on sender screen
     Change in capitalization makes usernames different -> Payton vs payton, when check put all to lowercase
