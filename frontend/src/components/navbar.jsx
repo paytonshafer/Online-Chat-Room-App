@@ -63,6 +63,7 @@ const NavBar = () => {
                     {activePage === 'features' 
                         ? <MDBNavbarLink active>Features</MDBNavbarLink> 
                         : <MDBNavbarLink onClick={goFeatures}>Features</MDBNavbarLink> }
+                    <MDBNavbarLink disabled >Current Username<strong>:</strong> {username}</MDBNavbarLink>
                 </MDBNavbarNav>
                 : <MDBNavbarNav className='ms-1'>
                     <MDBTooltip tag='span' title='Login to Unlock'>
