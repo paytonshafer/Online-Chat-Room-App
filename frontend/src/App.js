@@ -7,7 +7,7 @@ import Home from './pages/home'
 import Features from './pages/features';
 import { UserProvider } from './context/UserContext';
 
-const socket = process.env.REACT_APP_RUN_TYPE === 'dev' ? socketIO.connect('http://localhost:8000') : socketIO.connect('http://192.168.4.26:8000')
+const socket = socketIO.connect(`http://${process.env.REACT_APP_SERVER_IP}:${process.env.REACT_APP_SERVER_PORT}`)
 //const socket = socketIO.connect('http://192.168.4.26:8000'); //uncomment this to allow others to connect to the socket (chloe home network)
 
 function App() {
