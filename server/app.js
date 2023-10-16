@@ -1,5 +1,4 @@
 /*TODO:
-Set up some way to clear out logs
 add env copies and let them know what to add -> frontend: add hoastname of backend as env
 Update socket.io event names
 Ensuere empty direct message cant be sent
@@ -67,7 +66,7 @@ const logger = createLogger({
     ),
     transports: [ // set where logging will happen
         new transports.Console(), // log to the console
-        new transports.File({ filename: 'app.log' }) // log to the log file
+        new transports.File({ filename: 'app.log', options: { flags: 'w' }  }) // log to the log file, add option to clear out on new run
     ]
 });
 
