@@ -78,6 +78,8 @@ This is a chat room application built using React.js, Node.js, Express, and Sock
 
 4. Start chatting with other users by typing messages in the input field and pressing enter.
 
+Note: The server logs all events and errors. Once running check the 'app.log' file for all the logs on your most recent run.
+
 ### Commands
 - Use `/help` to display a list of available commands and their descriptions.
 - Use `/users` to list all connected users in the chat room.
@@ -89,4 +91,4 @@ This is a chat room application built using React.js, Node.js, Express, and Sock
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
-- Special thanks to the React.js, Node.js, Express, and Socket.io communities for their excellent libraries.
+Special thanks to the React.js, Node.js, Express, and Socket.io communities for their excellent libraries.

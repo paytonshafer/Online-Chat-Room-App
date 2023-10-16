@@ -1,5 +1,4 @@
 /*TODO:
-add env copies and let them know what to add -> frontend: add hoastname of backend as env
 Update socket.io event names
 Ensuere empty direct message cant be sent
 Integraete database to backend:
