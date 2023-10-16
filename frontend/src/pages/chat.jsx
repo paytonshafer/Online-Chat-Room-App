@@ -18,6 +18,7 @@ const Chat = ({ socket }) => {
     const messagesEndRef = useRef(null); // useRef to use as a ref to scroll to bottom of message buffer
     const [message, setMessage] = useState('') // message state of current message in input
     const [messages, setMessages] = useState(gmessages)
+    //const [blocked, setBlocked] = useState([]) // when check this list turn everything lowercase
     const navigate = useNavigate(); // initailize naviagtor
 
     // use effect on initial load that sets listeners
@@ -164,6 +165,26 @@ const Chat = ({ socket }) => {
                     }
                 })
                 break
+                {/*case 'block':
+                    const flag = params[0]
+                    const user = params[1]
+
+                    switch(flag) {
+                        case '-b':
+                                setBlocked((prev) => [...prev, user])
+                                addMessage(`System: User named`)
+                            break
+                        case '-l':
+
+                            break
+                        case '-u':
+
+                            break
+                        default:
+                            addMessage('System: Invalid flag for <code>/block</code> command, please try again')
+                    }
+
+                break*/}
             default:
                 // only gets here if they tried to use a command that we don't have
                 addMessage('System: Invalid command, please try again')
@@ -211,7 +232,7 @@ const Chat = ({ socket }) => {
                         </MDBCol>
                     </MDBRow> 
                     :
-                    <MDBRow start key={index} style={{marginRight: '20rem', marginLeft: '1rem'}}> {/* Increase marginLeft to close middle gap */}
+                    <MDBRow start key={index} style={{marginRight: '20rem', marginLeft: '1rem'}}> {/* Increase marginLeft to close middle gap */}{/*hidden={blocked.map((str) => str.toLowerCase()).includes(data.split(': ')[0].toLowerCase()) ? true : false */}
                     <MDBCol md='auto' className='m-0'>
                             <MDBCard background={data.split(': ')[0] === 'System' ? 'secondary' : 'info'} shadow='1' className=' my-1' style={{color: 'white'}}>
                                 <MDBCardHeader className='p-0 p-2 fw-bold' >{data.split(': ')[0]}</MDBCardHeader>

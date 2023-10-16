@@ -10,8 +10,8 @@ Integraete database to backend:
 moderator/admin tools: mute user, delete messages -> do we need db for this? how to know a user is admin
 add more commands:
     /me - allow users to set a description, allow others to get description
+    /block -b user-> ignore messages from specific user, /block -l -> get list of ppl blocked, /unblock -u user -> unblock someone
     /desc - get aboce descriptions ex. /desc username
-    ignore messages from specific user
     game/riddle - launch text game in room
     cmds with api:
         /define - define a word
