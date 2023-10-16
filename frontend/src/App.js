@@ -13,7 +13,6 @@ const socket = socketIO.connect(`http://${process.env.REACT_APP_SERVER_IP}:${pro
 function App() {
     return (
         <div className="bg-white">
-            <button onClick={() => {console.log(socket)}}></button>
             <Router>
                 <UserProvider>
                     <NavBar socket={socket}/>
