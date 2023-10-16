@@ -40,7 +40,13 @@ This is a chat room application built using React.js, Node.js, Express, and Sock
    npm install
    ```
 
-5. Navigate to the server directory:
+5. Create a copy of .env.template and call it .env to set the environment variables with the command below. For the frontend the variables to set are BACKEND_IP and BACKEND_PORT. Ensure they are set to ur liking then save the new .env file.:
+
+   ```
+   cp .env.template .env
+   ```
+
+6. Navigate to the server directory:
 
    ```
    cd ../server
@@ -50,6 +56,12 @@ This is a chat room application built using React.js, Node.js, Express, and Sock
 
    ```
    npm install
+   ```
+
+8. Create a copy of .env.template and call it .env to set the environment variables with the command below. For the backend the variables to set are the PORT to run on and RUN_TYPE. For RUN_TYPE set it as 'dev' for local development and set to 'prod' if you want to expose your backend server to your local network. Ensure they are set to ur liking then save the new .env file.:
+
+   ```
+   cp .env.template .env
    ```
 
 ### Usage
