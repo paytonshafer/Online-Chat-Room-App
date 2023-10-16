@@ -1,6 +1,6 @@
 /*TODO:
-env files for front and backend to hold port, weather run is dev or deploy, 
 Set up some way to clear out logs and update log messages to be more readable and add all logs
+add env copies and let them know what to add -> frontend: add hoastname of backend as env
 Integraete database to backend:
     choose db service and link up to backend
     store room history -> /history command to get history back
@@ -31,10 +31,12 @@ const { Server } = require("socket.io")
 const cors = require('cors');
 // require winston and needed functions for logging
 const { createLogger, format, transports } = require('winston');
+// require package for .env
+require('dotenv').config()
 
 
 // set port, check for env file with specified port, if not there use 3000
-const port = process.env.PORT || 8000;
+const port = process.env.PORT;
 // 'constructor' of express module, we use app for everything now
 const app = express();
 // set up cors for app
@@ -44,7 +46,7 @@ const server = createServer(app);
 // create io instance of socket.io server and add cors route
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:3000"
+        origin: process.env.RUN_TYPE == 'dev' ? "http://localhost:3000" : "*"
         // add whitelist to allow more than 1 origin, add chloes ip
         //origin: "*" //uncomment and comment above to allow for any connection
     }
