@@ -148,6 +148,10 @@ const Chat = ({ socket }) => {
                     addMessage('System: The username you entered is your own username. You can not send a direct message to yourself.')
                     break
                 }
+                if(message.trim() === ''){
+                    addMessage('System: You can not send a blank message. Please try again.')
+                    break
+                }
 
                 // since other_user is not you, get user list to check if they exist
                 socket.emit("request_users", {}, (userList) => {

@@ -1,6 +1,4 @@
 /*TODO:
-Update socket.io event names
-Ensuere empty direct message cant be sent
 Integraete database to backend:
     choose db service and link up to backend
     store room history -> /history command to get history back
