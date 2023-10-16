@@ -1,6 +1,8 @@
 /*TODO:
-Set up some way to clear out logs and update log messages to be more readable and add all logs
+Set up some way to clear out logs
 add env copies and let them know what to add -> frontend: add hoastname of backend as env
+Update socket.io event names
+Ensuere empty direct message cant be sent
 Integraete database to backend:
     choose db service and link up to backend
     store room history -> /history command to get history back
@@ -24,17 +26,20 @@ add more commands:
 // import express which is a helper to ask act as web server
 const express = require("express");
 // import http module which allows to send http requests
-const { createServer } = require('http');
+const { createServer, get } = require('http');
 // import server.io module that makes working with web sockets super easy
 const { Server } = require("socket.io")
 // import cors to ensure data can be sent between server and sockets
 const cors = require('cors');
 // require winston and needed functions for logging
 const { createLogger, format, transports } = require('winston');
+// require os to get ip adresss
+const os = require('os');
 // require package for .env
 require('dotenv').config()
 
-
+// set ip adress
+const ip = process.env.RUN_TYPE == 'prod' ? os.networkInterfaces()['en0'][1]['address'] : '127.0.0.1'
 // set port, check for env file with specified port, if not there use 3000
 const port = process.env.PORT;
 // 'constructor' of express module, we use app for everything now
@@ -46,9 +51,8 @@ const server = createServer(app);
 // create io instance of socket.io server and add cors route
 const io = new Server(server, {
     cors: {
-        origin: process.env.RUN_TYPE == 'dev' ? "http://localhost:3000" : "*"
+        origin: process.env.RUN_TYPE == 'prod' ? "*" : "http://localhost:3000"
         // add whitelist to allow more than 1 origin, add chloes ip
-        //origin: "*" //uncomment and comment above to allow for any connection
     }
 })
 
@@ -56,9 +60,9 @@ const io = new Server(server, {
 const logger = createLogger({
     level: 'info', // set the minimum log level to "info"
     format: format.combine(
-        format.timestamp(), // get time stamp for log
-        format.printf(({ timestamp, level, message }) => {
-        return `${timestamp} [${level}]: ${message}`; // create function to print in this format
+        format.timestamp({format: 'MMM-DD-YYYY HH:mm:ss'}), // get time stamp for log
+        format.printf(({ timestamp, level, message, ...data }) => {
+        return `${timestamp} [${level}]: ${message} ${JSON.stringify(data) == '{}' ? '' : JSON.stringify(data)}`; // create function to print in this format
         })
     ),
     transports: [ // set where logging will happen
@@ -88,16 +92,17 @@ const getKeyByValue = (map, targetValue) => {
 
 // on connection event create these event listeners on the new socket
 io.on("connection", (socket) => {
+    logger.info(`Client with socket id ${socket.id} connected.`, {})
     try {
         // create an event for when user logs in and add user to map
         socket.on("user_join", (data) => { // data is the new username
             try {
                 if(data){ // unsure data is not null so only real users can be added
-                        logger.info(data + ' joined (socket id: ' + socket.id + ')')
+                        logger.info(`${socket.id} joined the application and set a username.`, {username: data})
                         connectedClients.set(data, socket); // add new user and their socket to client list
                     }
             } catch (error) {
-                logger.error("User join error for " + socket.id + " (" + data + ") :", error)
+                logger.error(`${socket.id} error when joining application`, {error: error, username: data})
             }
         });
 
@@ -105,47 +110,50 @@ io.on("connection", (socket) => {
         socket.on('join_room', (data) => { // data has room and username
             try {
                 if(clientRooms.has(socket)){ // user was in a room already
-                    logger.info(data.user + ' disconnected from room: ' + clientRooms.get(socket) + ' (socket id: ' + socket.id + ')')
                     socket.to(clientRooms.get(socket)).emit("user_leave", data.user); // broadcast user left the old room
                     socket.leave(clientRooms.get(socket)) // leave old room
+                    logger.info(`${socket.id} disconnected from a room`, {username: data.user, room: clientRooms.get(socket)})
                     clientRooms.delete(socket) // remove from map
                 }
                 socket.join(data.room) // join new room
                 clientRooms.set(socket, data.room)// add to map
-                logger.info(data.user + ' joined room: ' + clientRooms.get(socket) + ' (socket id: ' + socket.id + ')')
                 socket.to(data.room).emit('user_join', data.user)  // let users in room know that they joined
+                logger.info(`${socket.id} joined a room`, {username: data.user, room: data.room})
             } catch (error) {
-                logger.error("Join room error for " + socket.id + " (" + data.user + ") :", error)
+                logger.error(`${socket.id} error when joining a room`, {error: error, username: data.user, room:data.room})
             }
         })
 
         // create an event when you send a message to send message to all other users
         socket.on("chat_message", (data) => { // data is username of sender and message
             try {
-                logger.info("Chat message from " + data.sender + ' (socket id: ' + socket.id + ')')
                 // call chat_message event and send the message data (username of sender and message)
                 socket.to(clientRooms.get(socket)).emit("chat_message", data);
+                logger.info(`${socket.id} sent a message to their room`, {username: data.sender, msg: data.message, room: clientRooms.get(socket)})
             } catch (error) {
-                logger.error("Send chat message error for " + socket.id + " :", error)
+                logger.error(`${socket.id} error when sending message`, {error: error, username: data.sender, msg: data.message, room: clientRooms.get(socket)})
             }
         });
 
         // create an event for the user on disconnect to let all other user know they left
         socket.on("disconnect", () => {
             try {            
-                gone_user = getKeyByValue(connectedClients, socket) // get username from socket that left
+                let gone_user = getKeyByValue(connectedClients, socket) // get username from socket that left
+                let final_room = clientRooms.get(socket)
                 if(gone_user){ // if they exist
-                    // log that the user left
-                    logger.info(gone_user + ' disconnected from server (socket id: ' + socket.id + ')')
                     // remove said user from the map
                     connectedClients.delete(gone_user)
                     // call user_leave event and send username of user who left
-                    socket.to(clientRooms.get(socket)).emit("user_leave", gone_user);
+                    socket.to(final_room).emit("user_leave", gone_user);
+                    // log that they left the room
+                    logger.info(`${socket.id} disconnected from a room`, {username: gone_user, room: final_room})
                     // remove the user from the room
                     clientRooms.delete(socket)
+                    // log that the user left
+                    logger.info(`${socket.id} disconnected from the server`, {username: gone_user})
                 }
             } catch (error) {
-                logger.error("Disconnect error for " + socket.id + " :", error)
+                logger.error(`${socket.id} disconnect error`, {error: error, username: gone_user, final_room: final_room})
             }
 
         })
@@ -153,11 +161,11 @@ io.on("connection", (socket) => {
         // event for requesting user list that can be used with a callback function
         socket.on('request_users', (data, callback) => {
             try{
-                logger.info("Request user list from: " + socket.id)
                 // send username list back
                 callback([...connectedClients.keys()])
+                logger.info(`${socket.id} requested user list (setting or changing username)`, {username: getKeyByValue(connectedClients, socket)})
             } catch (error) {
-                logger.error("Request user list error for " + socket.id + " :", error)
+                logger.error(`${socket.id} error when requesting user list`, {error: error, username: getKeyByValue(connectedClients, socket)})
             }
         })
 
@@ -167,9 +175,9 @@ io.on("connection", (socket) => {
                 connectedClients.delete(data.old) // delete old username
                 connectedClients.set(data.new, socket) // add new username
                 socket.to(clientRooms.get(socket)).emit('other_name_change', data) // broadcast to all other users
-                logger.info(data.old + ' changed username to ' + data.new + ' (socket id: ' + socket.id + ')') // log that a user changed their name
+                logger.info(`${socket.id} changed their username`, {old: data.old, new: data.new, room: clientRooms.get(socket)}) // log that a user changed their name
             } catch (error) {
-                logger.error("Change username error for " + socket.id + " :", error)
+                logger.error(`${socket.id} error on username change`, {error: error, old: data.old, new: data.new, room: clientRooms.get(socket)})
             }
         })
 
@@ -178,9 +186,9 @@ io.on("connection", (socket) => {
             try {
                 receiver_socket = connectedClients.get(data.receiver) // get receiver socket
                 receiver_socket.emit("receive_direct_message", data) // send direct message to the socket
-                logger.info("Direct message from " + data.sender + " to " + data.receiver)
+                logger.info(`${socket.id} sent a direct message`, {sender: data.sender, receiver: data.receiver, msg: data.message})
             } catch (error) {
-                logger.error("Send direct message error for " + socket.id + " :", error)
+                logger.error(`${socket.id} error for direct message`, {error: error, sender: data.sender, receiver: data.receiver, msg: data.message})
             }
         })
 
@@ -203,40 +211,49 @@ io.on("connection", (socket) => {
                     roomDataMap.set(roomName, { room: roomName, users: [username] });
                     }
                 });
-                
-                logger.info("Request user room list for " + socket.id)
                 // convert to a list of the room user objects and callback the data
                 callback([...roomDataMap.values()])
+                logger.info(`${socket.id} requested user room list`, {username: getKeyByValue(connectedClients, socket), user_room_list: [...roomDataMap.values()]})
             } catch (error) {
-                logger.error("Request user room list error for " + socket.id + " :", error)
+                logger.error(`${socket.id} error on request user room list`, {error: error, username: getKeyByValue(connectedClients, socket), user_room_list: [...roomDataMap.values()]})
             }
         })
 
         // for what another user creates a room
         socket.on('create_room', (data) => {
-            rooms.push(data.room) // add new room to list
-            socket.broadcast.emit('new_room', data.room) // let other users know ab new room
+            try{
+                rooms.push(data.room) // add new room to list
+                socket.broadcast.emit('new_room', data.room) // let other users know ab new room
+                logger.info(`${socket.id} created a new room`, {new_room: data.room, room_list: rooms})
+            } catch (error) {
+                logger.info(`${socket.id} error on createing new room`, {error: error, new_room: data.room, room_list: rooms})
+            }
         })
 
         // when user needs room list -> only on login as of now
         socket.on('req_rooms', (data, callback) => {
-            callback(rooms) // send room list
+            try {
+                callback(rooms) // send room list
+                logger.info(`${socket.id} requested room list (on login)`, {room_list: rooms})
+            } catch {
+                logger.info(`${socket.id} error on request room list (on login)`, {error: error, room_list: rooms})
+            }
         })
 
     } catch (error) {
-        logger.error("Connection setup error:", error);
+        logger.error(`${socket.id} error on connection`, {error: error});
     }
 });
 
 // we ensure that the http server is listening on given port, if it is we output where it is listening
 server.listen(port, () => {
-    logger.info("Listening on port:" + port); // log that startup was successful
+    logger.info(`Server running at http://${ip}:${port}/`); // log that startup was successful
 });
 
 // handle server startup errors
 server.on('error', (error) => {
     // log the error if it happens.
-    logger.error('Server startup error:', error);
+    logger.error('Server startup error', {error: error});
 });
 
 /*
