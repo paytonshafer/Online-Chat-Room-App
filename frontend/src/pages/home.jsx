@@ -87,7 +87,7 @@ const Home = ({ socket }) => {
         // when a new room is made by another
         socket.on('new_room', (data) => {
             addRoom(data)
-            toast(`New Room called '${data}' Created`, {
+            toast(`New Room called '${data.name}' Created`, {
                 position: "bottom-left",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -174,10 +174,9 @@ const Home = ({ socket }) => {
     const createRoom = (e) => {
         e.preventDefault()
         if(newRoom.trim() !== ''){ // if the room is not empty
-            if(!rooms.includes(newRoom.trim())){ // if the room is not already a room
+            if(!rooms.map((room) => room.name).includes(newRoom.trim())){ // if the room is not already a room
                 socket.emit('create_room', {room: newRoom}) // let other know about new room
-                setRooms((prev) => [...prev, newRoom]) // update your rooms
-                toast.success(`New Room: '${newRoom}' created`, { // pop up for new room success
+                /*NO NEED FOR THIS BC ONE FROM EMITtoast.success(`New Room: '${newRoom}' created`, { // pop up for new room success
                     position: "top-center",
                     autoClose: 5000,
                     hideProgressBar: false,
@@ -186,7 +185,7 @@ const Home = ({ socket }) => {
                     draggable: true,
                     progress: undefined,
                     theme: "light",
-                })
+                })*/
                 setNewRoom('')
             } else { // tried to create room that exists
                 toast.warning(`'${newRoom}' is already a room`, {
@@ -266,7 +265,7 @@ const Home = ({ socket }) => {
                         <MDBCard className='w-40'>
                             <MDBCardBody className='d-flex flex-row justify-content-center'>
                                 <div style={{width: '20rem'}}>
-                                    <Select className='m-4' menuPlacement="auto" menuPosition="fixed" options={rooms.filter((value, index, array) => array.indexOf(value) === index).map((data) => {return {value: data, label: data}})} onChange={(e) => {setRoomSelector(e.value)}}/>
+                                    <Select className='m-4' menuPlacement="auto" menuPosition="fixed" options={rooms.map((room) => room.name).filter((value, index, array) => array.indexOf(value) === index).map((data) => {return {value: data, label: data}})} onChange={(e) => {setRoomSelector(e.value)}}/>
                                 </div>
                                 <MDBBtn className='m-4' onClick={joinRoom}>Join Room</MDBBtn>
                             </MDBCardBody>

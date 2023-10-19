@@ -2,9 +2,8 @@
 Make 3 log files and some way to rotate between them so you have last 3 runs
 Integraete database to backend:
     MONGO!
-    FIRST add room collections where we just need to store name of room for now -> add msgs next
-    store room history -> /history command to get history back
-    store user into and credentials
+    store user info and credentials
+    store room history (with room object in message array, only user messages no system stuff)
     login systen
     profile icon
     friend list 
@@ -110,7 +109,7 @@ const getRooms = async () => {
     const db_rooms = rooms_coll.find({ }); // Find many and sort by name
     for await (const doc of db_rooms) {
         if(!rooms.includes(doc.name)){
-            rooms.push(doc.name);
+            rooms.push(doc);
         }
     }
     //callback(rooms) //if calling inside req_rooms event
@@ -118,9 +117,14 @@ const getRooms = async () => {
 }
 
 // add room to database so that when we start again we have any new rooms
-const addRoom = async (room) => {
-    rooms.push(data.room) // add new room to list
-    await rooms_coll.insertOne({name: room.trim()}) // add new room to db
+const addRoom = async (room_name, socket) => {
+    await rooms_coll.insertOne({name: room_name.trim(), messages: []}) // add new room to db
+    // get the same object
+    const new_room = await rooms_coll.findOne({name: room_name.trim()})
+    socket.broadcast.emit('new_room', new_room) // let other users know ab new room
+    socket.emit('new_room', new_room)
+    rooms.push(new_room) // add new room to list
+    logger.info(`${socket.id} created a new room`, {new_room: room_name, room_list: rooms})
 }
 
 /* SOCKER.IO EVENTS */
@@ -256,9 +260,7 @@ io.on("connection", (socket) => {
         // for what another user creates a room
         socket.on('create_room', (data) => {
             try{
-                addRoom(data.room) // add new room to database and list
-                socket.broadcast.emit('new_room', data.room) // let other users know ab new room
-                logger.info(`${socket.id} created a new room`, {new_room: data.room, room_list: rooms})
+                addRoom(data.room, socket) // add new room to database and list * move two lines below into add room funcitom
             } catch (error) {
                 logger.error(`${socket.id} error on createing new room`, {error: error, new_room: data.room, room_list: rooms})
             }
