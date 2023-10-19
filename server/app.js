@@ -1,6 +1,8 @@
 /*TODO:
+Make 3 log files and some way to rotate between them so you have last 3 runs
 Integraete database to backend:
-    choose db service and link up to backend
+    MONGO!
+    FIRST add room collections where we just need to store name of room for now -> add msgs next
     store room history -> /history command to get history back
     store user into and credentials
     login systen
@@ -19,10 +21,11 @@ add more commands:
         get weather of given city
         get quote
 */
+/* IMPORTS */
 // import express which is a helper to ask act as web server
 const express = require("express");
 // import http module which allows to send http requests
-const { createServer, get } = require('http');
+const { createServer } = require('http');
 // import server.io module that makes working with web sockets super easy
 const { Server } = require("socket.io")
 // import cors to ensure data can be sent between server and sockets
@@ -31,13 +34,27 @@ const cors = require('cors');
 const { createLogger, format, transports } = require('winston');
 // require os to get ip adresss
 const os = require('os');
+// require mongodb client and OnjectID to look by ids
+const { MongoClient, ObjectId } = require("mongodb");
 // require package for .env
 require('dotenv').config()
 
+/* CONSTANTS FOR WEB SEVER */
 // set ip adress
 const ip = process.env.RUN_TYPE == 'prod' ? os.networkInterfaces()['en0'][1]['address'] : '127.0.0.1'
 // set port, check for env file with specified port, if not there use 3000
 const port = process.env.PORT;
+
+/* MONGODB CONNECTION */
+// create the client object
+const mongodb = new MongoClient(process.env.MONGO_URL);
+mongodb.connect(); //  connect to the MongoDB cluster on atlas
+// connect to our chat app database
+const db = mongodb.db(process.env.MONGO_DB);
+// connect to room collection
+const rooms_coll = db.collection('rooms')
+
+//*WEB SERVER CONFIG */
 // 'constructor' of express module, we use app for everything now
 const app = express();
 // set up cors for app
@@ -52,6 +69,7 @@ const io = new Server(server, {
     }
 })
 
+/* LOGGER */
 // initialize logger object to log to console and to app.log file
 const logger = createLogger({
     level: 'info', // set the minimum log level to "info"
@@ -67,14 +85,15 @@ const logger = createLogger({
     ]
 });
 
+/* INITIALIZATION OF VARS */
 // create a map to store the usernames and their respective socket
 const connectedClients = new Map()
 // create a map for socket to what room they are in
 const clientRooms = new Map()
 // list of rooms
-const rooms = ['default_room']
+const rooms = []
 
-// Helper Functions
+/* HELPER FUNCTIONS */
 // function to get the value of a map by the key, returns null if client isnt found
 const getKeyByValue = (map, targetValue) => {
     for (const [key, value] of map.entries()) {
@@ -84,11 +103,30 @@ const getKeyByValue = (map, targetValue) => {
     }
     // If the target value is not found, you can return null or handle it as needed.
     return null;
-  }
+}
 
+// get rooms from database, this is only called on inital load since avail rooms is kept track of
+const getRooms = async () => {
+    const db_rooms = rooms_coll.find({ }); // Find many and sort by name
+    for await (const doc of db_rooms) {
+        if(!rooms.includes(doc.name)){
+            rooms.push(doc.name);
+        }
+    }
+    //callback(rooms) //if calling inside req_rooms event
+    //logger.info(`${id} requested room list (on login)`, {room_list: rooms})  //if calling inside req_rooms event
+}
+
+// add room to database so that when we start again we have any new rooms
+const addRoom = async (room) => {
+    rooms.push(data.room) // add new room to list
+    await rooms_coll.insertOne({name: room.trim()}) // add new room to db
+}
+
+/* SOCKER.IO EVENTS */
 // on connection event create these event listeners on the new socket
 io.on("connection", (socket) => {
-    logger.info(`Client with socket id ${socket.id} connected.`, {})
+    logger.info(`Client with socket id ${socket.id} connected.`, {}) // log that a client connected
     try {
         // create an event for when user logs in and add user to map
         socket.on("user_join", (data) => { // data is the new username
@@ -218,21 +256,21 @@ io.on("connection", (socket) => {
         // for what another user creates a room
         socket.on('create_room', (data) => {
             try{
-                rooms.push(data.room) // add new room to list
+                addRoom(data.room) // add new room to database and list
                 socket.broadcast.emit('new_room', data.room) // let other users know ab new room
                 logger.info(`${socket.id} created a new room`, {new_room: data.room, room_list: rooms})
             } catch (error) {
-                logger.info(`${socket.id} error on createing new room`, {error: error, new_room: data.room, room_list: rooms})
+                logger.error(`${socket.id} error on createing new room`, {error: error, new_room: data.room, room_list: rooms})
             }
         })
 
         // when user needs room list -> only on login as of now
         socket.on('req_rooms', (data, callback) => {
-            try {
+            try{
                 callback(rooms) // send room list
-                logger.info(`${socket.id} requested room list (on login)`, {room_list: rooms})
-            } catch {
-                logger.info(`${socket.id} error on request room list (on login)`, {error: error, room_list: rooms})
+                logger.info(`${socket.id} requested room list (on login)`, {room_list: rooms}) 
+            } catch (error) {
+                logger.error(`${socket.id} error on request room list (on login)`, {error: error, room_list: rooms})
             }
         })
 
@@ -241,9 +279,11 @@ io.on("connection", (socket) => {
     }
 });
 
+/* SERVER SET UP */
 // we ensure that the http server is listening on given port, if it is we output where it is listening
 server.listen(port, () => {
     logger.info(`Server running at http://${ip}:${port}/`); // log that startup was successful
+    getRooms() // get rooms on start up
 });
 
 // handle server startup errors
