@@ -2,8 +2,8 @@
 Make 3 log files and some way to rotate between them so you have last 3 runs
 Integraete database to backend:
     MONGO!
-    store user info and credentials
-    store room history (with room object in message array, only user messages no system stuff)
+    store user info and credentials FE: login, usercontext(unique id), username logic 
+    store room history (with room object in message array, only user messages no system stuff) FE: home and chat file
     login systen
     profile icon
     friend list 
