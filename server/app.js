@@ -323,6 +323,35 @@ io.on("connection", (socket) => {
             }
         })
 
+        // event to play rock paper scissors
+        socket.on('rps', async (choice, callback) => {
+            try{
+                console.log(choice)
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+                const data = {
+                    user_res: choice, // choice in rps game
+                };
+                const response = await fetch(process.env.RPS_URL, { // call lambda function with url
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(data),
+                });
+                if (response.ok) {
+                    const res_data = await response.json();
+                    callback(res_data) // send back data
+                    console.log(res_data)
+                    logger.info(`${socket.id} requested play rps`, {result: res_data})
+                }else{
+                    callback({msg: 'Something went wrong with your rock-paper-scissors request. Please try again.'})
+                    logger.error(`${socket.id} error on request of rock-paper-scissors`, {response: response})
+                }
+            } catch (error) {
+                logger.error(`${socket.id} error on rock-paper-scissors`, {error: error})
+            }
+        })
+
     } catch (error) {
         logger.error(`${socket.id} error on connection`, {error: error});
     }

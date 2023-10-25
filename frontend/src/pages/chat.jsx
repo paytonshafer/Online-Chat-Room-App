@@ -12,7 +12,8 @@ const Chat = ({ socket }) => {
     <code>/clear</code>: Clear all messages on your screen.<br />
     <code>/username new_username</code>: Change your username to new_username.<br />
     <code>/direct other_user message</code>: Send a direct message to only other_user.<br />
-    <code>/dice numb_rolls</code>: Roll the number of dice specified and get numbers in return.<br /><br />
+    <code>/dice numb_rolls</code>: Roll the number of dice specified and get numbers in return.<br />
+    <code>/rps choice</code>: Play vs a computer, enter 'rock', 'paper' or 'scissors' as your choice.<br /><br />
 
     
     Head to the <strong>Features</strong> page for a detailed explanation and examples of each command.`; // help message to be displayed to user
@@ -180,6 +181,17 @@ const Chat = ({ socket }) => {
                         sender: 'System',
                         message: username + rolls.msg
                     });
+                })
+                break
+            case 'rps':
+                const choice = params[0] // choice
+                if(!['rock', 'paper', 'scissors'].includes(choice.toLowerCase())){ // if bad choice
+                    addMessage("System: Invalid choice. Please choose rock, paper, or scissors and try again.")
+                    break
+                }
+                // emit to server and get results
+                socket.emit("rps", choice.toLowerCase(), (result) => {
+                    addMessage("System: " + result.msg) // get result of game
                 })
                 break
             default:

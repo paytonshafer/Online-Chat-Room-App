@@ -146,6 +146,33 @@ const CommandList = () => {
                                 </p>
                             </div>
                         </MDBAccordionItem>
+                        <MDBAccordionItem collapseId={7} headerTitle='/rps'>
+                            <div>
+                                <h2>Play Rock Paper Scissors</h2>
+                                <p>
+                                    The <code>/rps</code> command allows you to play rock-paper-scissors vs a computer. To use this feature, follow these simple steps:
+                                </p>
+
+                                <h3>Syntax:</h3>
+                                <pre>/rps choice</pre>
+
+                                <ul>
+                                    <li>
+                                    <code>/rps</code>: The command to initiate a rock-paper-scissors game.
+                                    </li>
+                                    <li>
+                                    <code>num_rolls</code>: Replace this with you choice in the game.
+                                    </li>
+                                </ul>
+
+                                <h3>Example:</h3>
+                                <pre>/rps rock</pre>
+
+                                <p>
+                                    This command will return 'User: rock VS Computer: scissors. You win!'. Use this command to play against a computer at any time!
+                                </p>
+                            </div>
+                        </MDBAccordionItem>
                     </MDBAccordion>
                 </MDBCardBody>
             </MDBCard>
