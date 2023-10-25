@@ -11,7 +11,9 @@ const Chat = ({ socket }) => {
     <code>/users</code>: List all connected users in the chat room.<br />
     <code>/clear</code>: Clear all messages on your screen.<br />
     <code>/username new_username</code>: Change your username to new_username.<br />
-    <code>/direct other_user message</code>: Send a direct message to only other_user.<br /><br />
+    <code>/direct other_user message</code>: Send a direct message to only other_user.<br />
+    <code>/dice numb_rolls</code>: Roll the number of dice specified and get numbers in return.<br /><br />
+
     
     Head to the <strong>Features</strong> page for a detailed explanation and examples of each command.`; // help message to be displayed to user
     const { id, username, setUsername, gmessages, setGMessages, curRoom } = useUserContext(); // get username from user context, setUsername function to set username
@@ -165,30 +167,26 @@ const Chat = ({ socket }) => {
                     }
                 })
                 break
-                {/*case 'block':
-                    const flag = params[0]
-                    const user = params[1]
-
-                    switch(flag) {
-                        case '-b':
-                                setBlocked((prev) => [...prev, user])
-                                addMessage(`System: User named`)
-                            break
-                        case '-l':
-
-                            break
-                        case '-u':
-
-                            break
-                        default:
-                            addMessage('System: Invalid flag for <code>/block</code> command, please try again')
-                    }
-
-                break*/}
+            case 'dice':
+                const num_rolls = params[0] // get number of rolls wanted
+                if(num_rolls > 50){ // chekc num rolls
+                    addMessage("System: Max number of rolls is 50. Please try again")
+                    break
+                }
+                // socket emit to roll dice with callback of dice rolls
+                socket.emit("roll_dice", num_rolls, (rolls) => {
+                    addMessage("System: You" + rolls.msg) // get your rolls
+                    socket.emit("chat_message", { // send rolls to others
+                        sender: 'System',
+                        message: username + rolls.msg
+                    });
+                })
+                break
             default:
                 // only gets here if they tried to use a command that we don't have
-                addMessage('System: Invalid command, please try again')
-        }    }
+                addMessage('System: Invalid command. Please try again')
+        }    
+    }
 
     // function to handle message send
     const handleSend = (event) => {

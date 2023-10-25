@@ -119,6 +119,33 @@ const CommandList = () => {
                                 </p>
                             </div>
                         </MDBAccordionItem>
+                        <MDBAccordionItem collapseId={6} headerTitle='/dice'>
+                            <div>
+                                <h2>Roll Some Dice</h2>
+                                <p>
+                                    The <code>/dice</code> command allows you roll as many dice as you specify (up to 50). To use this feature, follow these simple steps:
+                                </p>
+
+                                <h3>Syntax:</h3>
+                                <pre>/dice num_rolls</pre>
+
+                                <ul>
+                                    <li>
+                                    <code>/dice</code>: The command to initiate a dice roll.
+                                    </li>
+                                    <li>
+                                    <code>num_rolls</code>: Replace this with the number of dice you want to roll, if blank you will roll 1 die.
+                                    </li>
+                                </ul>
+
+                                <h3>Example:</h3>
+                                <pre>/dice 5</pre>
+
+                                <p>
+                                    This command will return 'You rolled 3,5,2,1,2'. Use this command to play all kinds of fun games with friends in the chat room!
+                                </p>
+                            </div>
+                        </MDBAccordionItem>
                     </MDBAccordion>
                 </MDBCardBody>
             </MDBCard>

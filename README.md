@@ -58,7 +58,7 @@ This is a chat room application built using React.js, Node.js, Express, and Sock
    npm install
    ```
 
-8. Create a copy of .env.template and call it .env to set the environment variables with the command below. For the backend the variables to set are the PORT to run on and RUN_TYPE. For RUN_TYPE set it as 'dev' for local development and set to 'prod' if you want to expose your backend server to your local network. For MONGO_URL enter the connection usl for you mongo cluster/instance and for MONGO_DB enter the name of your databse. Ensure they are set to ur liking then save the new .env file.:
+8. Create a copy of .env.template and call it .env to set the environment variables with the command below. For the backend the variables to set are the PORT to run on and RUN_TYPE. For RUN_TYPE set it as 'dev' for local development and set to 'prod' if you want to expose your backend server to your local network. For MONGO_URL enter the connection usl for you mongo cluster/instance and for MONGO_DB enter the name of your databse. For DICE_URL enter the url to invoke the lambda function to roll dice. Ensure they are set to ur liking then save the new .env file.:
 
    ```
    cp .env.template .env
@@ -86,6 +86,7 @@ Note: The server logs all events and errors. Once running check the 'app.log' fi
 - Use `/clear` to clear all the messages on your screen.
 - Use `/username new_username` to change user username to new_username if new_username is not taken by anyone else in the room.
 - Use `/direct other_user message` to send a direct message, where message is the message to send, to other_user.
+- Use `/dice num_rolls` to roll num_rolls dice and get back the numbers you rolled.
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

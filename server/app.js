@@ -1,4 +1,5 @@
 /*TODO:
+Rock paper scissor game with lambda function
 Make 3 log files and some way to rotate between them so you have last 3 runs
 Integraete database to backend:
     MONGO!
@@ -11,9 +12,28 @@ Integraete database to backend:
 moderator/admin tools: mute user, delete messages -> do we need db for this? how to know a user is admin
 add more commands:
     /me - allow users to set a description, allow others to get description
-    /block -b user-> ignore messages from specific user, /block -l -> get list of ppl blocked, /unblock -u user -> unblock someone
+    /block -b user-> ignore messages from specific user, /block -l -> get list of ppl blocked, /unblock -u user -> unblock someone 
+                case 'block':
+                    const flag = params[0]
+                    const user = params[1]
+
+                    switch(flag) {
+                        case '-b':
+                                setBlocked((prev) => [...prev, user])
+                                addMessage(`System: User named`)
+                            break
+                        case '-l':
+
+                            break
+                        case '-u':
+
+                            break
+                        default:
+                            addMessage('System: Invalid flag for <code>/block</code> command, please try again')
+                    }
+
+                break*
     /desc - get aboce descriptions ex. /desc username
-    game/riddle - launch text game in room
     cmds with api:
         /define - define a word
         chat with ai, ex /ai tell me about egyot -> pull prompt and send to gpt with ai
@@ -273,6 +293,33 @@ io.on("connection", (socket) => {
                 logger.info(`${socket.id} requested room list (on login)`, {room_list: rooms}) 
             } catch (error) {
                 logger.error(`${socket.id} error on request room list (on login)`, {error: error, room_list: rooms})
+            }
+        })
+
+        // event to roll the dice
+        socket.on('roll_dice', async (num, callback) => {
+            try{
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+                const data = {
+                    num: num, // number of dice to be rolled
+                };
+                const response = await fetch(process.env.DICE_URL, { // call lambda function with url
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(data),
+                });
+                if (response.ok) {
+                    const res_data = await response.json();
+                    callback(res_data) // send back data
+                    logger.info(`${socket.id} requested dice roll`, {rolls: res_data})
+                }else{
+                    callback({msg: ', something went wrong with your dice roll request. Please try again.'})
+                    logger.error(`${socket.id} error on request of dice roll`, {response: response})
+                }
+            } catch (error) {
+                logger.error(`${socket.id} error on dice roll`, {error: error})
             }
         })
 
